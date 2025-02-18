@@ -17,32 +17,6 @@ install_latest_deb() {
     rm /tmp/latest.deb
 }
 
-# Web App Creating (WIP)
-create_webapp() {
-  local app_name=$1
-  local app_url=$2
-  local favicon_url=${3:-"https://$(echo "$app_url" | sed -E 's|https?://([^/]+).*|\1|')/favicon.ico"}
-  local app_file="$APP_DIR/$app_name.desktop"
-  local app_icon="$APP_DIR/$app_name.png"
-  local profile_dir="$APP_DIR/$app_name-profile"
-  wget -q -O "$app_icon" "$favicon_url" || cp /usr/share/icons/hicolor/128x128/apps/web-browser.png "$app_icon"
-  mkdir -p "$profile_dir"
-  cat <<EOF > "$app_file"
-[Desktop Entry]
-Version=1.0
-Name=$app_name
-Comment=Web app for $app_name
-Exec=flatpak run io.gitlab.librewolf-community -P "$profile_dir" --no-remote "$app_url"
-Icon=$app_icon
-Terminal=false
-Type=Application
-Categories=Internet;WebBrowser;
-EOF
-
-  chmod +x "$app_file"
-}
-
-
 # Browser GPU preferencing
 update_pref_js() {
     local base_dir=$1
@@ -131,7 +105,7 @@ if [[ "$MODE" == "1" ]]; then
         ;;
     esac
 
-    # # Quad9
+    # Quad9
     DNS_SERVERS_IPV4="9.9.9.9 149.112.112.112"
     DNS_SERVERS_IPV6="2620:fe::fe 2620:fe::9"
     CONNECTION_NAME=$(nmcli -t -f NAME,DEVICE connection show --active | grep -E -v "lo|docker0" | awk -F: '{print $1}' | head -n 1)
@@ -144,6 +118,10 @@ if [[ "$MODE" == "1" ]]; then
     sudo nmcli connection modify "$CONNECTION_NAME" ipv6.dns "$DNS_SERVERS_IPV6"
     sudo nmcli connection modify "$CONNECTION_NAME" ipv6.ignore-auto-dns yes
     sudo nmcli connection up "$CONNECTION_NAME"
+
+    # Spotify repository
+    curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+    echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 fi
 
 # APT
@@ -152,30 +130,51 @@ sudo apt update -y
 # Installation Mode
 if [[ "$MODE" == "1" ]]; then
 
-    # # OpenRazer
+    # OpenRazer
     echo 'deb http://download.opensuse.org/repositories/hardware:/razer/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/hardware:razer.list
     curl -fsSL https://download.opensuse.org/repositories/hardware:razer/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/hardware_razer.gpg > /dev/null
 
-    # # APT
-    sudo apt install -y python3-pip nodejs vlc webcord vim sqlitebrowser openrazer-meta razergenie cups hplip htop codium krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
+    # APT
+    sudo apt install -y spotify-client python3-pip nodejs vlc webcord vim sqlitebrowser openrazer-meta razergenie cups hplip htop codium krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
     sudo systemctl enable --now cups
 
-    # # Flathub
+    # Patch Spotify
+    git clone https://github.com/abba23/spotify-adblock.git
+    cd spotify-adblock && make
+    sudo make install
+    sudo sh -c "[Desktop Entry]
+Type=Application
+Name=Spotify
+GenericName=Music Player
+Icon=spotify-client
+TryExec=spotify
+Exec=env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U
+Terminal=false
+MimeType=x-scheme-handler/spotify;
+Categories=Audio;Music;Player;AudioVideo;
+StartupWMClass=spotify" > /usr/share/applications/spotify.desktop
+
+    # Flathub
     flatpak install -y app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
 
-    # # Qemu
+    # Ble.sh
+    set -o vi
+    git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git
+    make -C ble.sh install PREFIX=~/.local
+    echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
+
+    # Qemu
     sudo apt install -y qemu-kvm libvirt-daemon-system virt-manager bridge-utils
     sudo systemctl enable --now libvirtd
 
-    # # GitHub
+    # GitHub
     install_latest_deb "ThaUnknown/miru" "linux-Miru.*deb"
     install_latest_deb "VSCodium/vscodium" ".*amd64.deb"
-    install_latest_deb "KRTirtho/spotube" ".*x86_64.deb"
 
-    # # Rust
+    # Rust
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-    # # Postman
+    # Postman
     DEST_DIR="$HOME/Documents"
     ARCHIVE="$DEST_DIR/postman.tar.gz"
     mkdir -p "$DEST_DIR"
@@ -183,7 +182,7 @@ if [[ "$MODE" == "1" ]]; then
     tar -xzf "$ARCHIVE" -C "$DEST_DIR"
     rm "$ARCHIVE"
 
-    # # ADB and fastboot
+    # ADB and fastboot
     curl -o /tmp/platform-tools.zip "https://dl.google.com/android/repository/platform-tools-latest-linux.zip"
     unzip -o /tmp/platform-tools.zip -d "$HOME/adb-fastboot"
     PROFILE_FILE="$HOME/.profile"
@@ -195,19 +194,10 @@ if [[ "$MODE" == "1" ]]; then
     fi
     rm /tmp/platform-tools.zip
 
-    # # Web Apps
-    APP_DIR="$HOME/.local/share/applications"
-    mkdir -p "$APP_DIR"
-    create_webapp "Microsoft Teams" "https://teams.microsoft.com/v2/"
-    create_webapp "Microsoft Outlook" "https://outlook.office365.com/mail/"
-    create_webapp "Tuta Mail" "https://app.tuta.com" "https://mail.tutanota.com/images/logo-favicon-192.png"
-    create_webapp "Proton Mail" "https://mail.proton.me" "https://mail.proton.me/assets/favicon.ico"
-    create_webapp "Venice" "https://venice.ai/"
+    # Debloat
+    sudo apt purge -y baobab celluloid drawing gnome-calendar gnome-logs gnome-power-manager gnote hexchat hypnotix nano onboard pix rhythmbox seahorse simple-scan thunderbird warpinator webapp-manager xreader
 
-    # # Debloat
-    sudo apt purge -y baobab celluloid drawing gnome-calendar gnome-logs gnome-power-manager gnote hexchat hypnotix nano onboard pix rhythmbox seahorse simple-scan thunderbird transmission-gtk warpinator webapp-manager xreader
-
-    # # GRUB
+    # GRUB
     sudo sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/' "/etc/default/grub"
     sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
     sudo update-grub
@@ -274,15 +264,15 @@ if [[ "$MODE" == "1" ]]; then
                 "nemo.desktop",
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
-                "webcord.desktop",
-                "spotube.desktop"
+                "spotify.desktop",
+                "webcord.desktop"
             ] |
             .["pinned-apps"].default = [
                 "nemo.desktop",
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
-                "webcord.desktop",
-                "spotube.desktop"
+                "spotify.desktop",
+                "webcord.desktop"
             ]'
     gsettings set org.cinnamon.desktop.interface enable-animations false
     gsettings set org.cinnamon desktop-effects-workspace false
@@ -290,6 +280,11 @@ if [[ "$MODE" == "1" ]]; then
     gsettings set org.cinnamon.desktop.sound event-sounds false
     gsettings set org.cinnamon.desktop.sound theme-name "none"
     dconf write /org/cinnamon/panels-enabled "['1:0:top']"
+
+    # Guake tweaks
+    dconf write /apps/guake/keybindings/global/show-hide "'F5'"
+    dconf write /apps/guake/style/font/palette-name "'Bluloco'"
+    dconf write /apps/guake/style/font/palette "'#505050505050:#FFFF2E2E3F3F:#6F6FD6D65D5D:#FFFF6F6F2323:#34347676FFFF:#98986161F8F8:#0000CDCDB3B3:#FFFFFCFCC2C2:#7C7C7C7C7C7C:#FFFF64648080:#3F3FC5C56B6B:#F9F9C8C85959:#0000B1B1FEFE:#B6B68D8DFFFF:#B3B38B8B7D7D:#FFFFFEFEE3E3:#DEDEE0E0DFDF:#262626262626'"
 
     # Reload
     source ~/.bashrc
@@ -327,5 +322,3 @@ case "$REBOOT_CHOICE" in
     echo && echo "Script finished."
     ;;
 esac
-
-# fl studio in bottles
