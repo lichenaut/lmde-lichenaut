@@ -141,11 +141,11 @@ if [[ "$MODE" == "2" ]]; then
     esac
 
     # Swapfile
-    sudo fallocate -l 4G /swapfile
-    sudo chmod 600 /swapfile
-    sudo mkswap /swapfile
-    echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
-    sudo swapon /swapfile
+   sudo fallocate -l 4G /swapfile
+   sudo chmod 600 /swapfile
+   sudo mkswap /swapfile
+   echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+   sudo swapon /swapfile
 
     # Disable autoconnect to wireless
     nmcli -t -f NAME connection show | while read -r CONN; do
@@ -185,12 +185,16 @@ sudo apt update -y
 if [[ "$MODE" == "2" ]]; then
 
     # APT
-    sudo apt install -y spotify-client python3-pip nodejs vlc webcord vim sqlitebrowser openrazer-meta razergenie cups hplip htop codium krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
+    sudo apt install -y spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
     sudo systemctl enable --now cups
 
+    # Rust
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    . "$HOME/.cargo/env"
+
     # Patch Spotify
-    [ -d "spotify-adblock" ] && rm -rf "spotify-adblock"
-    git clone https://github.com/abba23/spotify-adblock.git ~
+    rm -rf ~/spotify-adblock
+    git clone https://github.com/abba23/spotify-adblock.git ~/spotify-adblock    
     make -C ~/spotify-adblock
     sudo make -C ~/spotify-adblock install
     echo "[Desktop Entry]
@@ -206,12 +210,12 @@ Categories=Audio;Music;Player;AudioVideo;
 StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /dev/null
 
     # Flathub
-    flatpak install -y app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
+    flatpak install -y app/io.github.spacingbat3.webcord/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
 
     # Ble.sh
     set -o vi
-    git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git
-    make -C ble.sh install PREFIX=~/.local
+    git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git ~/ble.sh
+    make -C ~/ble.sh install PREFIX=~/.local
     echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
 
     # Qemu
@@ -229,9 +233,6 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     #     echo "dnscrypt-proxy directory found. Skipping dnscrypt-proxy proxy server setup."
     # fi
     install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
-
-    # Rust
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     
     # Postman
     DEST_DIR="$HOME/Documents"
@@ -348,7 +349,6 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     # Reload
     source ~/.bashrc
     source ~/.profile
-    . "$HOME/.cargo/env"
     gtk-update-icon-cache
     cinnamon --replace > /dev/null 2>&1 &
 fi
