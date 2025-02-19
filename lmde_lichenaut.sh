@@ -195,13 +195,13 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     # GitHub releases
     install_latest_gh "ThaUnknown/miru" "linux-Miru.*deb" "deb"
     install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
-    if [ ! -d "~/linux-x86_64" ]; then
-        install_latest_gh "DNSCrypt/dnscrypt-proxy" "linux_x86_64" "tar.gz"
-        cp ~/linux-x86_64/example-dnscrypt-proxy.toml ~/linux-x86_64/dnscrypt-proxy.toml
-        sudo ~/linux-x86_64/dnscrypt-proxy -service install && sudo ~/linux-x86_64/dnscrypt-proxy -service start
-    else
-        echo "dnscrypt-proxy directory found. Skipping dnscrypt-proxy proxy server setup."
-    fi
+    # if [ ! -d "~/linux-x86_64" ]; then
+    #     install_latest_gh "DNSCrypt/dnscrypt-proxy" "linux_x86_64" "tar.gz"
+    #     cp ~/linux-x86_64/example-dnscrypt-proxy.toml ~/linux-x86_64/dnscrypt-proxy.toml
+    #     sudo ~/linux-x86_64/dnscrypt-proxy -service install && sudo ~/linux-x86_64/dnscrypt-proxy -service start
+    # else
+    #     echo "dnscrypt-proxy directory found. Skipping dnscrypt-proxy proxy server setup."
+    # fi
     install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
 
     # Rust
