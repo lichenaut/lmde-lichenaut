@@ -17,7 +17,7 @@ install_latest_gh() {
     wget -O $DOWNLOAD_PATH $LATEST_URL
     if [[ "$FILE_TYPE" == "deb" ]]; then
         sudo gdebi $DOWNLOAD_PATH -n
-    elif [[ "$FILE_TYPE" == "tgz" ]]; then
+    elif [[ "$FILE_TYPE" == "tar.gz" || "$FILE_TYPE" == "tgz" ]]; then
         tar -C $HOME -h -xzf $DOWNLOAD_PATH
     else
         echo "Script fatal error: unsupported file type: $FILE_TYPE"
@@ -114,9 +114,18 @@ if [[ "$MODE" == "1" ]]; then
         ;;
     esac
 
-    # Disable autoconnect
+    # Swapfile
+    sudo fallocate -l 4G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+    sudo swapon /swapfile
+
+    # Disable autoconnect to wireless
     nmcli -t -f NAME connection show | while read -r CONN; do
-        sudo nmcli connection modify "$CONN" connection.autoconnect no
+        if [[ "$CONN" != *"Wired"* ]]; then
+            sudo nmcli connection modify "$CONN" connection.autoconnect no
+        fi
     done
 
     # Quad9
@@ -155,9 +164,9 @@ if [[ "$MODE" == "1" ]]; then
 
     # Patch Spotify
     [ -d "spotify-adblock" ] && rm -rf "spotify-adblock"
-    git clone https://github.com/abba23/spotify-adblock.git
-    cd spotify-adblock && make
-    sudo make install
+    git clone https://github.com/abba23/spotify-adblock.git ~
+    make -C ~/spotify-adblock
+    sudo make -C ~/spotify-adblock install
     echo "[Desktop Entry]
 Type=Application
 Name=Spotify
@@ -186,6 +195,13 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     # GitHub releases
     install_latest_gh "ThaUnknown/miru" "linux-Miru.*deb" "deb"
     install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
+    if [ ! -d "~/linux-x86_64" ]; then
+        install_latest_gh "DNSCrypt/dnscrypt-proxy" "linux_x86_64" "tar.gz"
+        cp ~/linux-x86_64/example-dnscrypt-proxy.toml ~/linux-x86_64/dnscrypt-proxy.toml
+        sudo ~/linux-x86_64/dnscrypt-proxy -service install && sudo ~/linux-x86_64/dnscrypt-proxy -service start
+    else
+        echo "dnscrypt-proxy directory found. Skipping dnscrypt-proxy proxy server setup."
+    fi
     install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
 
     # Rust
@@ -340,10 +356,3 @@ case "$REBOOT_CHOICE" in
     echo && echo "Script finished."
     ;;
 esac
-
-
-# DNSCrypt
-# https://github.com/dnscrypt/dnscrypt-proxy/wiki/Installation-linux
-# logwatch
-# test noisetorch installation
-# spotify-adblock gens dir in this dir?
