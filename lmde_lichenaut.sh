@@ -84,24 +84,50 @@ update_cinnamon_config() {
 MODE=""
 echo "Script modes:
 
-    1) Installation - Personalize computer, thorough updating
-    2) Update - Streamlined updating
+    1) Format drive from ISO
+    2) Installation - Personalize computer, thorough updating
+    3) Update - Streamlined updating
 "
 while true; do
-    read -p "Which do you want to run (0 to abort)? [0-2]: " MODE
+    read -p "Which do you want to run (0 to abort)? [0-3]: " MODE
     if [[ "$MODE" == "0" ]]; then
         echo "Script finished: no mode chosen."
         exit 0
     fi
-    if [[ "$MODE" == "1" || "$MODE" == "2" ]]; then
-        break
-    else
-        continue
-    fi
+    case "$MODE" in
+        1|2|3) break ;;
+        *) continue ;;
+    esac
 done
 
-# Pre-APT Installation
+# Drive formatting
 if [[ "$MODE" == "1" ]]; then
+    lsblk -o NAME,PATH,SIZE,TYPE,MOUNTPOINTS
+    read -p "Enter the PATH for the drive you want to format (e.g. /dev/sda): " DRIVE_PATH
+    read -p "Enter the path for the ISO file (e.g. ~/Downloads/lmde.iso): " ISO_PATH
+    ISO_PATH=$(eval echo "$ISO_PATH")
+    if [[ ! -b "$DRIVE_PATH" ]]; then
+        echo "Script fatal error: $DRIVE_PATH is not a valid block device."
+        exit 1
+    fi
+    if [[ ! -f "$ISO_PATH" ]]; then
+        echo "Script fatal error: ISO file not found at $ISO_PATH."
+        exit 1
+    fi
+    read -p "WARNING: This will erase $DRIVE_PATH. Type 'yes' to continue: " CONFIRM
+    if [[ "$CONFIRM" != "yes" ]]; then
+        echo "Script finished: operation canceled."
+        exit 0
+    fi
+    sudo wipefs --all "$DRIVE_PATH"
+    sudo dd if=/dev/zero of="$DRIVE_PATH" bs=1M count=10 status=progress
+    sudo dd if="$ISO_PATH" of="$DRIVE_PATH" bs=4M status=progress && sync
+    echo "Script finished: USB formatted and bootable."
+    exit 0
+fi
+
+# Pre-APT Installation
+if [[ "$MODE" == "2" ]]; then
 
     # Prerequisite
     read -p "Are you connected to the internet? Additionally, have you completed the installation and welcome setup screens for LMDE? (y/N): " CONTINUE
@@ -156,7 +182,7 @@ fi
 sudo apt update -y
 
 # Installation Mode
-if [[ "$MODE" == "1" ]]; then
+if [[ "$MODE" == "2" ]]; then
 
     # APT
     sudo apt install -y spotify-client python3-pip nodejs vlc webcord vim sqlitebrowser openrazer-meta razergenie cups hplip htop codium krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
@@ -341,7 +367,7 @@ update_pref_js "$HOME/.mozilla/firefox/*.default-release"
 update_pref_js "$HOME/.var/app/io.gitlab.librewolf-community/.librewolf/*.default-default"
 
 # Flavor
-if [[ "$MODE" == "1" ]]; then
+if [[ "$MODE" == "2" ]]; then
     neofetch
 fi
 
