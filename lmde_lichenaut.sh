@@ -3,18 +3,27 @@
 # Exit on fail
 set -e
 
-# GitHub Release downloading
-install_latest_deb() {
+# GitHub release downloading
+install_latest_gh() {
     REPO=$1
     FILE_PATTERN=$2
+    FILE_TYPE=$3
     LATEST_URL=$(wget -qO- "https://api.github.com/repos/$REPO/releases/latest" | jq -r ".assets[] | select(.name | test(\"$FILE_PATTERN\")) | .browser_download_url" | head -n 1)
     if [[ -z "$LATEST_URL" ]]; then
-        echo "Script fatal error: could not find the latest .deb package URL for $REPO."
+        echo "Script fatal error: could not find the latest $FILE_TYPE package URL for $REPO."
         exit 1
     fi
-    wget "$LATEST_URL" -O /tmp/latest.deb
-    sudo gdebi /tmp/latest.deb -n
-    rm /tmp/latest.deb
+    DOWNLOAD_PATH="/tmp/latest.$FILE_TYPE"
+    wget -O $DOWNLOAD_PATH $LATEST_URL
+    if [[ "$FILE_TYPE" == "deb" ]]; then
+        sudo gdebi $DOWNLOAD_PATH -n
+    elif [[ "$FILE_TYPE" == "tgz" ]]; then
+        tar -C $HOME -h -xzf $DOWNLOAD_PATH
+    else
+        echo "Script fatal error: unsupported file type: $FILE_TYPE"
+        exit 1
+    fi
+    rm "$DOWNLOAD_PATH"
 }
 
 # Browser GPU preferencing
@@ -105,6 +114,11 @@ if [[ "$MODE" == "1" ]]; then
         ;;
     esac
 
+    # Disable autoconnect
+    nmcli -t -f NAME connection show | while read -r CONN; do
+        sudo nmcli connection modify "$CONN" connection.autoconnect no
+    done
+
     # Quad9
     DNS_SERVERS_IPV4="9.9.9.9 149.112.112.112"
     DNS_SERVERS_IPV6="2620:fe::fe 2620:fe::9"
@@ -118,6 +132,11 @@ if [[ "$MODE" == "1" ]]; then
     sudo nmcli connection modify "$CONNECTION_NAME" ipv6.dns "$DNS_SERVERS_IPV6"
     sudo nmcli connection modify "$CONNECTION_NAME" ipv6.ignore-auto-dns yes
     sudo nmcli connection up "$CONNECTION_NAME"
+    sudo systemctl restart NetworkManager
+
+    # OpenRazer
+    echo 'deb http://download.opensuse.org/repositories/hardware:/razer/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/hardware:razer.list
+    curl -fsSL https://download.opensuse.org/repositories/hardware:razer/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/hardware_razer.gpg > /dev/null
 
     # Spotify repository
     curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
@@ -130,19 +149,16 @@ sudo apt update -y
 # Installation Mode
 if [[ "$MODE" == "1" ]]; then
 
-    # OpenRazer
-    echo 'deb http://download.opensuse.org/repositories/hardware:/razer/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/hardware:razer.list
-    curl -fsSL https://download.opensuse.org/repositories/hardware:razer/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/hardware_razer.gpg > /dev/null
-
     # APT
     sudo apt install -y spotify-client python3-pip nodejs vlc webcord vim sqlitebrowser openrazer-meta razergenie cups hplip htop codium krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
     sudo systemctl enable --now cups
 
     # Patch Spotify
+    [ -d "spotify-adblock" ] && rm -rf "spotify-adblock"
     git clone https://github.com/abba23/spotify-adblock.git
     cd spotify-adblock && make
     sudo make install
-    sudo sh -c "[Desktop Entry]
+    echo "[Desktop Entry]
 Type=Application
 Name=Spotify
 GenericName=Music Player
@@ -152,7 +168,7 @@ Exec=env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U
 Terminal=false
 MimeType=x-scheme-handler/spotify;
 Categories=Audio;Music;Player;AudioVideo;
-StartupWMClass=spotify" > /usr/share/applications/spotify.desktop
+StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /dev/null
 
     # Flathub
     flatpak install -y app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
@@ -167,13 +183,14 @@ StartupWMClass=spotify" > /usr/share/applications/spotify.desktop
     sudo apt install -y qemu-kvm libvirt-daemon-system virt-manager bridge-utils
     sudo systemctl enable --now libvirtd
 
-    # GitHub
-    install_latest_deb "ThaUnknown/miru" "linux-Miru.*deb"
-    install_latest_deb "VSCodium/vscodium" ".*amd64.deb"
+    # GitHub releases
+    install_latest_gh "ThaUnknown/miru" "linux-Miru.*deb" "deb"
+    install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
+    install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
 
     # Rust
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    
     # Postman
     DEST_DIR="$HOME/Documents"
     ARCHIVE="$DEST_DIR/postman.tar.gz"
@@ -290,6 +307,7 @@ StartupWMClass=spotify" > /usr/share/applications/spotify.desktop
     source ~/.bashrc
     source ~/.profile
     . "$HOME/.cargo/env"
+    gtk-update-icon-cache
     cinnamon --replace > /dev/null 2>&1 &
 fi
 
@@ -322,3 +340,10 @@ case "$REBOOT_CHOICE" in
     echo && echo "Script finished."
     ;;
 esac
+
+
+# DNSCrypt
+# https://github.com/dnscrypt/dnscrypt-proxy/wiki/Installation-linux
+# logwatch
+# test noisetorch installation
+# spotify-adblock gens dir in this dir?
