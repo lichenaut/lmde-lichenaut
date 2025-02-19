@@ -114,7 +114,7 @@ if [[ "$MODE" == "1" ]]; then
         echo "Script fatal error: ISO file not found at $ISO_PATH."
         exit 1
     fi
-    read -p "WARNING: This will erase $DRIVE_PATH. Type 'yes' to continue: " CONFIRM
+    read -p "WARNING: This will erase all data on $DRIVE_PATH. Make sure the drive is unmounted and is not in use by any other services. Type 'yes' to continue: " CONFIRM
     if [[ "$CONFIRM" != "yes" ]]; then
         echo "Script finished: operation canceled."
         exit 0
