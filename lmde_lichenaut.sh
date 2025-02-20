@@ -227,11 +227,15 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
     codium --install-extension zhuangtongfa.material-theme
     codium --install-extension esbenp.prettier-vscode
-    jq '.["git.openRepositoryInParentFolders"] = "always" |
-     .["workbench.colorTheme"] = "One Dark Pro" |
-     .["editor.formatOnSave"] = true |
-     .["editor.defaultFormatter"] = "esbenp.prettier-vscode" |
-     .["[javascript]"] = {"editor.defaultFormatter": "esbenp.prettier-vscode"}' "~/.config/VSCodium/User/settings.json" | sponge "~/.config/VSCodium/User/settings.json"
+    touch ~/.config/VSCodium/User/settings.json
+    echo "{ 
+  \"workbench.colorTheme\": \"One Dark Pro\", 
+  \"editor.formatOnSave\": true, 
+  \"editor.defaultFormatter\": \"esbenp.prettier-vscode\", 
+  \"[javascript]\": { 
+    \"editor.defaultFormatter\": \"esbenp.prettier-vscode\" 
+  } 
+}" > ~/.config/VSCodium/User/settings.json
     codium --install-extension ms-python.python
     codium --install-extension rust-lang.rust-analyzer
     codium --install-extension Vue.volar
