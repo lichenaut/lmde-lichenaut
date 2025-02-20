@@ -5,15 +5,18 @@ set -e
 
 # Create .desktop file
 create_desktop_file() {
-    FILE_NAME=$1
+    NAME=$1
     EXEC=$2
     ICON=$3
     CATEGORIES=$4
-    LOWERCASE_FILE_NAME=$(echo "$FILE_NAME" | tr '[:upper:]' '[:lower:]')
+    LOWERCASE_FILE_NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]')
+    if [[ -z $ICON ]]; then
+        ICON="application-x-executable"
+    fi
     echo "[Desktop Entry]
 Type=Application
-Name=$FILE_NAME
-Comment=Start $FILE_NAME
+Name=$NAME
+Comment=Start $NAME
 Icon=$ICON
 Exec=$EXEC
 Terminal=false
@@ -48,17 +51,6 @@ install_latest_gh() {
         exit 1
     fi
     rm "$DOWNLOAD_PATH"
-}
-
-# Browser GPU preferencing
-update_pref_js() {
-    local base_dir=$1
-    for profile_dir in $base_dir; do
-        if [[ -d "$profile_dir" ]]; then
-            echo "user_pref(\"layers.acceleration.force-enabled\", true);
-user_pref(\"gfx.webrender.all\", true);" > "$profile_dir/user.js"
-        fi
-    done
 }
 
 # Autostart creating
@@ -104,9 +96,21 @@ update_cinnamon_config() {
     done
 }
 
+# Browser GPU preferencing
+update_pref_js() {
+    local base_dir=$1
+    for profile_dir in $base_dir; do
+        if [[ -d "$profile_dir" ]]; then
+            echo "user_pref(\"layers.acceleration.force-enabled\", true);
+user_pref(\"gfx.webrender.all\", true);" > "$profile_dir/user.js"
+        fi
+    done
+}
+
 # Choose mode
 MODE=""
-echo "Script modes:
+echo "LMDE ISO download: https://www.linuxmint.com/download_lmde.php
+Script modes:
 
     1) Format drive from ISO
     2) Installation - Personalize computer, thorough updating
@@ -205,13 +209,13 @@ if [[ "$MODE" == "2" ]]; then
 fi
 
 # APT
-sudo apt update -y
+sudo apt dist-update -y
 
 # Installation Mode
 if [[ "$MODE" == "2" ]]; then
 
     # APT
-    sudo apt install -y dconf-editor spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
+    sudo apt install -y dconf-editor spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload # tlp tlp-rdw
     sudo systemctl enable --now cups
 
     # Rust
@@ -227,6 +231,8 @@ if [[ "$MODE" == "2" ]]; then
 
     # Flathub
     flatpak install -y app/io.github.spacingbat3.webcord/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
+    env GAMEMODERUNEXEC="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only"
+    sudo usermod -a -G gamemode $USER
 
     # Ble.sh
     set -o vi
@@ -369,17 +375,18 @@ if [[ "$MODE" == "2" ]]; then
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
                 "spotify.desktop",
-                "webcord.desktop"
+                "io.github.spacingbat3.webcord.desktop:flatpak"
             ] |
             .["pinned-apps"].default = [
                 "nemo.desktop",
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
                 "spotify.desktop",
-                "webcord.desktop"
+                "io.github.spacingbat3.webcord.desktop:flatpak"
             ]'
     gsettings set org.cinnamon.desktop.interface enable-animations false
     gsettings set org.cinnamon desktop-effects-workspace false
+    gsettings set org.cinnamon panels-enabled "['1:0:top']"
     gsettings set org.cinnamon enabled-applets "['panel1:right:7:calendar@cinnamon.org:29', 'panel1:left:1:grouped-window-list@cinnamon.org:34', 'panel1:left:0:menu@cinnamon.org:37', 'panel1:right:4:network@cinnamon.org:38', 'panel1:right:3:printers@cinnamon.org:39', 'panel1:right:0:removable-drives@cinnamon.org:40', 'panel1:right:1:systray@cinnamon.org:41', 'panel1:right:0:xapp-status@cinnamon.org:42']"
     gsettings set org.cinnamon.desktop.sound event-sounds false
     gsettings set org.cinnamon.desktop.sound theme-name "none"
@@ -391,12 +398,15 @@ if [[ "$MODE" == "2" ]]; then
     gsettings set org.cinnamon.sounds switch-enabled false
     gsettings set org.cinnamon.sounds tile-enabled false
     gsettings set org.cinnamon.sounds unplug-enabled false
-    dconf write /org/cinnamon/panels-enabled "['1:0:top']"
 
     # Guake tweaks
-    dconf write /apps/guake/keybindings/global/show-hide "'F5'"
-    dconf write /apps/guake/style/font/palette-name "'Bluloco'"
-    dconf write /apps/guake/style/font/palette "'#505050505050:#FFFF2E2E3F3F:#6F6FD6D65D5D:#FFFF6F6F2323:#34347676FFFF:#98986161F8F8:#0000CDCDB3B3:#FFFFFCFCC2C2:#7C7C7C7C7C7C:#FFFF64648080:#3F3FC5C56B6B:#F9F9C8C85959:#0000B1B1FEFE:#B6B68D8DFFFF:#B3B38B8B7D7D:#FFFFFEFEE3E3:#DEDEE0E0DFDF:#262626262626'"
+    gsettings set guake.keybindings.global show-hide "'F5'"
+    gsettings set guake.style.font palette-name "'Bluloco'"
+    gsettings set guake.style.font palette "'#505050505050:#FFFF2E2E3F3F:#6F6FD6D65D5D:#FFFF6F6F2323:#34347676FFFF:#98986161F8F8:#0000CDCDB3B3:#FFFFFCFCC2C2:#7C7C7C7C7C7C:#FFFF64648080:#3F3FC5C56B6B:#F9F9C8C85959:#0000B1B1FEFE:#B6B68D8DFFFF:#B3B38B8B7D7D:#FFFFFEFEE3E3:#DEDEE0E0DFDF:#262626262626'"
+    
+    # Gamemode apps
+    sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
+    sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/usr/share/applications/r2modman.desktop"
 
     # Reload
     source ~/.bashrc
