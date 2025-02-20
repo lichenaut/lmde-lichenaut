@@ -310,6 +310,7 @@ if [[ "$MODE" == "2" ]]; then
     create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
     create_autostart_entry "Update Manager" "mintupdate-launcher" "mintupdate" "mintupdate"
     sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/mintupdate.desktop"
+    sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/blueman.desktop"
 
     # Default Applications
     echo "[Default Applications]
