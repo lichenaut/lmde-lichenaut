@@ -3,11 +3,29 @@
 # Exit on fail
 set -e
 
+# Create .desktop file
+create_desktop_file() {
+    FILE_NAME=$1
+    EXEC=$2
+    ICON=$3
+    CATEGORIES=$4
+    LOWERCASE_FILE_NAME=$(echo "$FILE_NAME" | tr '[:upper:]' '[:lower:]')
+    echo "[Desktop Entry]
+Type=Application
+Name=$FILE_NAME
+Comment=Start $FILE_NAME
+Icon=$ICON
+Exec=$EXEC
+Terminal=false
+Categories=$CATEGORIES" | sudo tee "/usr/share/applications/$LOWERCASE_FILE_NAME.desktop" > /dev/null
+}
+
 # GitHub release downloading
 install_latest_gh() {
     REPO=$1
     FILE_PATTERN=$2
     FILE_TYPE=$3
+    FILE_NAME=$4
     LATEST_URL=$(wget -qO- "https://api.github.com/repos/$REPO/releases/latest" | jq -r ".assets[] | select(.name | test(\"$FILE_PATTERN\")) | .browser_download_url" | head -n 1)
     if [[ -z "$LATEST_URL" ]]; then
         echo "Script fatal error: could not find the latest $FILE_TYPE package URL for $REPO."
@@ -15,6 +33,12 @@ install_latest_gh() {
     fi
     DOWNLOAD_PATH="/tmp/latest.$FILE_TYPE"
     wget -O $DOWNLOAD_PATH $LATEST_URL
+    if [[ "$FILE_TYPE" == "AppImage" ]]; then
+        chmod +x $DOWNLOAD_PATH
+        mv $DOWNLOAD_PATH $HOME/$FILE_NAME.$FILE_TYPE
+        create_desktop_file $FILE_NAME $HOME/$FILE_NAME.$FILE_TYPE "" ""
+        return 0
+    fi
     if [[ "$FILE_TYPE" == "deb" ]]; then
         sudo gdebi $DOWNLOAD_PATH -n
     elif [[ "$FILE_TYPE" == "tar.gz" || "$FILE_TYPE" == "tgz" ]]; then
@@ -114,7 +138,7 @@ if [[ "$MODE" == "1" ]]; then
         echo "Script fatal error: ISO file not found at $ISO_PATH."
         exit 1
     fi
-    read -p "WARNING: This will erase all data on $DRIVE_PATH. Make sure the drive is unmounted and is not in use by any other services. Type 'yes' to continue: " CONFIRM
+    read -p "WARNING: This will erase all data on $DRIVE_PATH. Make sure the drive is unmounted and is not in use by any other service. Type 'yes' to continue: " CONFIRM
     if [[ "$CONFIRM" != "yes" ]]; then
         echo "Script finished: operation canceled."
         exit 0
@@ -173,10 +197,10 @@ if [[ "$MODE" == "2" ]]; then
 
     # OpenRazer
     echo 'deb http://download.opensuse.org/repositories/hardware:/razer/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/hardware:razer.list
-    curl -fsSL https://download.opensuse.org/repositories/hardware:razer/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/hardware_razer.gpg > /dev/null
+    curl -SL https://download.opensuse.org/repositories/hardware:razer/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/hardware_razer.gpg > /dev/null
 
     # Spotify repository
-    curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+    curl -S https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
     echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 fi
 
@@ -187,7 +211,7 @@ sudo apt update -y
 if [[ "$MODE" == "2" ]]; then
 
     # APT
-    sudo apt install -y spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
+    sudo apt install -y dconf-editor spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload tlp tlp-rdw
     sudo systemctl enable --now cups
 
     # Rust
@@ -199,17 +223,7 @@ if [[ "$MODE" == "2" ]]; then
     git clone https://github.com/abba23/spotify-adblock.git ~/spotify-adblock    
     make -C ~/spotify-adblock
     sudo make -C ~/spotify-adblock install
-    echo "[Desktop Entry]
-Type=Application
-Name=Spotify
-GenericName=Music Player
-Icon=spotify-client
-TryExec=spotify
-Exec=env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U
-Terminal=false
-MimeType=x-scheme-handler/spotify;
-Categories=Audio;Music;Player;AudioVideo;
-StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /dev/null
+    create_desktop_file "Spotify" "env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U" "spotify-client" "Audio;Music;Player;AudioVideo;"
 
     # Flathub
     flatpak install -y app/io.github.spacingbat3.webcord/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
@@ -249,8 +263,8 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     codium --install-extension usernamehw.errorlens
     codium --install-extension dbaeumer.vscode-eslint
     codium --install-extension bradlc.vscode-tailwindcss
-    COPILOT_VERSION=$(curl -s "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot" | grep -oP '(?<="Version":")[^"]*')
-    curl -s -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+    COPILOT_VERSION=$(curl -S "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot" | grep -oP '(?<="Version":")[^"]*')
+    curl -S -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
     codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"
     # if [ ! -d "~/linux-x86_64" ]; then
     #     install_latest_gh "DNSCrypt/dnscrypt-proxy" "linux_x86_64" "tar.gz"
@@ -260,13 +274,14 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     #     echo "dnscrypt-proxy directory found. Skipping dnscrypt-proxy proxy server setup."
     # fi
     install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
-    
+    create_desktop_file "NoiseTorch" "noisetorch" "noisetorch" "Audio;Music;Player;AudioVideo;"
+    install_latest_gh "ebkr/r2modmanPlus" ".*AppImage" "AppImage" "R2ModMan"
+
     # Postman
-    DEST_DIR="$HOME/Documents"
-    ARCHIVE="$DEST_DIR/postman.tar.gz"
-    mkdir -p "$DEST_DIR"
+    ARCHIVE="$HOME/postman.tar.gz"
+    mkdir -p "$HOME"
     wget -O "$ARCHIVE" "https://dl.pstmn.io/download/latest/linux_64"
-    tar -xzf "$ARCHIVE" -C "$DEST_DIR"
+    tar -xzf "$ARCHIVE" -C "$HOME"
     rm "$ARCHIVE"
 
     # ADB and fastboot
@@ -292,6 +307,7 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     # Startup Applications
     create_autostart_entry "Redshift" "redshift-gtk" "redshift" "redshift-gtk"
     create_autostart_entry "Guake Terminal" "guake" "guake" "guake"
+    create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
     create_autostart_entry "Update Manager" "mintupdate-launcher" "mintupdate" "mintupdate"
     sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/mintupdate.desktop"
 
@@ -366,6 +382,14 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     gsettings set org.cinnamon enabled-applets "['panel1:right:7:calendar@cinnamon.org:29', 'panel1:left:1:grouped-window-list@cinnamon.org:34', 'panel1:left:0:menu@cinnamon.org:37', 'panel1:right:4:network@cinnamon.org:38', 'panel1:right:3:printers@cinnamon.org:39', 'panel1:right:0:removable-drives@cinnamon.org:40', 'panel1:right:1:systray@cinnamon.org:41', 'panel1:right:0:xapp-status@cinnamon.org:42']"
     gsettings set org.cinnamon.desktop.sound event-sounds false
     gsettings set org.cinnamon.desktop.sound theme-name "none"
+    gsettings set org.cinnamon.desktop.sound volume-sound-enabled false
+    gsettings set org.cinnamon.sounds login-enabled false
+    gsettings set org.cinnamon.sounds logout-enabled false
+    gsettings set org.cinnamon.sounds notification-enabled false
+    gsettings set org.cinnamon.sounds plug-enabled false
+    gsettings set org.cinnamon.sounds switch-enabled false
+    gsettings set org.cinnamon.sounds tile-enabled false
+    gsettings set org.cinnamon.sounds unplug-enabled false
     dconf write /org/cinnamon/panels-enabled "['1:0:top']"
 
     # Guake tweaks
