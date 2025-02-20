@@ -231,13 +231,14 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     codium --install-extension zhuangtongfa.material-theme
     codium --install-extension esbenp.prettier-vscode
     touch ~/.config/VSCodium/User/settings.json
-    echo "{ 
+    echo "{
+  \"workbench.sideBar.location\": \"right\",
   \"workbench.colorTheme\": \"One Dark Pro\", 
   \"editor.formatOnSave\": true, 
   \"editor.defaultFormatter\": \"esbenp.prettier-vscode\", 
   \"[javascript]\": { 
     \"editor.defaultFormatter\": \"esbenp.prettier-vscode\" 
-  } 
+  }
 }" > ~/.config/VSCodium/User/settings.json
     codium --install-extension ms-python.python
     codium --install-extension rust-lang.rust-analyzer
