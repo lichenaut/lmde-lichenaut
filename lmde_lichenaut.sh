@@ -141,11 +141,13 @@ if [[ "$MODE" == "2" ]]; then
     esac
 
     # Swapfile
-    sudo fallocate -l 4G /swapfile
-    sudo chmod 600 /swapfile
-    sudo mkswap /swapfile
-    echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
-    sudo swapon /swapfile
+    if [ ! -f /swapfile ]; then
+        sudo fallocate -l 4G /swapfile
+        sudo chmod 600 /swapfile
+        sudo mkswap /swapfile
+        echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+        sudo swapon /swapfile
+    fi
 
     # Disable autoconnect to wireless
     nmcli -t -f NAME connection show | while read -r CONN; do
@@ -214,6 +216,7 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
 
     # Ble.sh
     set -o vi
+    rm -rf ~/ble.sh
     git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git ~/ble.sh
     make -C ~/ble.sh install PREFIX=~/.local
     echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
