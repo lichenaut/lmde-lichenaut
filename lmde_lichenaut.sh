@@ -225,6 +225,20 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     # GitHub releases
     install_latest_gh "ThaUnknown/miru" "linux-Miru.*deb" "deb"
     install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
+    codium --install-extension zhuangtongfa.material-theme
+    codium --install-extension esbenp.prettier-vscode
+    codium --install-extension ms-python.python
+    codium --install-extension ms-python.debugpy
+    codium --install-extension rust-lang.rust-analyzer
+    codium --install-extension Vue.volar
+    codium --install-extension serayuzgur.crates
+    codium --install-extension tamasfe.even-better-toml
+    codium --install-extension vadimcn.vscode-lldb
+    codium --install-extension usernamehw.errorlens
+    codium --install-extension dbaeumer.vscode-eslint
+    codium --install-extension bradlc.vscode-tailwindcss
+    curl -s -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+    codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"
     # if [ ! -d "~/linux-x86_64" ]; then
     #     install_latest_gh "DNSCrypt/dnscrypt-proxy" "linux_x86_64" "tar.gz"
     #     cp ~/linux-x86_64/example-dnscrypt-proxy.toml ~/linux-x86_64/dnscrypt-proxy.toml
