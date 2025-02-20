@@ -227,8 +227,12 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
     codium --install-extension zhuangtongfa.material-theme
     codium --install-extension esbenp.prettier-vscode
+    jq '.["git.openRepositoryInParentFolders"] = "always" |
+     .["workbench.colorTheme"] = "One Dark Pro" |
+     .["editor.formatOnSave"] = true |
+     .["editor.defaultFormatter"] = "esbenp.prettier-vscode" |
+     .["[javascript]"] = {"editor.defaultFormatter": "esbenp.prettier-vscode"}' "~/.config/VSCodium/User/settings.json" | sponge "~/.config/VSCodium/User/settings.json"
     codium --install-extension ms-python.python
-    codium --install-extension ms-python.debugpy
     codium --install-extension rust-lang.rust-analyzer
     codium --install-extension Vue.volar
     codium --install-extension serayuzgur.crates
@@ -237,6 +241,7 @@ StartupWMClass=spotify" | sudo tee /usr/share/applications/spotify.desktop > /de
     codium --install-extension usernamehw.errorlens
     codium --install-extension dbaeumer.vscode-eslint
     codium --install-extension bradlc.vscode-tailwindcss
+    COPILOT_VERSION=$(curl -s "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot" | grep -oP '(?<="Version":")[^"]*')
     curl -s -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
     codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"
     # if [ ! -d "~/linux-x86_64" ]; then
