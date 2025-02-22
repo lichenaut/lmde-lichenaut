@@ -215,7 +215,7 @@ sudo apt dist-update -y
 if [[ "$MODE" == "2" ]]; then
 
     # APT
-    sudo apt install -y dconf-editor spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload # tlp tlp-rdw
+    sudo apt install -y npm python3.11-venv dconf-editor spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload # tlp tlp-rdw
     sudo systemctl enable --now cups
 
     # Rust
@@ -230,7 +230,7 @@ if [[ "$MODE" == "2" ]]; then
     create_desktop_file "Spotify" "env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U" "spotify-client" "Audio;Music;Player;AudioVideo;"
 
     # Flathub
-    flatpak install -y app/io.github.spacingbat3.webcord/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
+    flatpak install -y pp/com.discordapp.Discord/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
     env GAMEMODERUNEXEC="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only"
     sudo usermod -a -G gamemode $USER
 
@@ -260,6 +260,13 @@ if [[ "$MODE" == "2" ]]; then
     \"editor.defaultFormatter\": \"esbenp.prettier-vscode\" 
   }
 }" > ~/.config/VSCodium/User/settings.json
+    touch ~/.config/VSCodium/User/keybindings.json
+    echo "[
+  {
+    \"key\": \"ctrl+j\",
+    \"command\": \"-workbench.action.togglePanel\"
+  }
+]" > ~/.config/VSCodium/User/keybindings.json
     codium --install-extension ms-python.python
     codium --install-extension rust-lang.rust-analyzer
     codium --install-extension Vue.volar
@@ -269,6 +276,7 @@ if [[ "$MODE" == "2" ]]; then
     codium --install-extension usernamehw.errorlens
     codium --install-extension dbaeumer.vscode-eslint
     codium --install-extension bradlc.vscode-tailwindcss
+    codium --install-extension ms-toolsai.jupyter
     COPILOT_VERSION=$(curl -S "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot" | grep -oP '(?<="Version":")[^"]*')
     curl -S -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
     codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"
@@ -375,14 +383,14 @@ if [[ "$MODE" == "2" ]]; then
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
                 "spotify.desktop",
-                "io.github.spacingbat3.webcord.desktop:flatpak"
+                "com.discordapp.Discord.desktop"
             ] |
             .["pinned-apps"].default = [
                 "nemo.desktop",
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
                 "spotify.desktop",
-                "io.github.spacingbat3.webcord.desktop:flatpak"
+                "com.discordapp.Discord.desktop"
             ]'
     gsettings set org.cinnamon.desktop.interface enable-animations false
     gsettings set org.cinnamon desktop-effects-workspace false
@@ -403,7 +411,7 @@ if [[ "$MODE" == "2" ]]; then
     gsettings set guake.keybindings.global show-hide "'F5'"
     gsettings set guake.style.font palette-name "'Bluloco'"
     gsettings set guake.style.font palette "'#505050505050:#FFFF2E2E3F3F:#6F6FD6D65D5D:#FFFF6F6F2323:#34347676FFFF:#98986161F8F8:#0000CDCDB3B3:#FFFFFCFCC2C2:#7C7C7C7C7C7C:#FFFF64648080:#3F3FC5C56B6B:#F9F9C8C85959:#0000B1B1FEFE:#B6B68D8DFFFF:#B3B38B8B7D7D:#FFFFFEFEE3E3:#DEDEE0E0DFDF:#262626262626'"
-    
+
     # Gamemode apps
     sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
     sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/usr/share/applications/r2modman.desktop"
@@ -444,3 +452,6 @@ case "$REBOOT_CHOICE" in
     echo && echo "Script finished."
     ;;
 esac
+# rss client
+# ? https://github.com/FreshRSS/FreshRSS#installation
+# self hosted vpn?
