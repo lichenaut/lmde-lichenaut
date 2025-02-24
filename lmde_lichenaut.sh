@@ -310,12 +310,12 @@ if [[ "$MODE" == "2" ]]; then
 
     # Cinnamon tweaks
     gsettings set org.cinnamon desktop-effects-workspace false
+    gsettings set org.cinnamon enabled-applets "['panel1:right:7:calendar@cinnamon.org:29', 'panel1:left:1:grouped-window-list@cinnamon.org:34', 'panel1:left:0:menu@cinnamon.org:37', 'panel1:right:4:network@cinnamon.org:38', 'panel1:right:3:printers@cinnamon.org:39', 'panel1:right:0:removable-drives@cinnamon.org:40', 'panel1:right:1:systray@cinnamon.org:41', 'panel1:right:0:xapp-status@cinnamon.org:42']"
+    gsettings set org.cinnamon panels-enabled "['1:0:top']"
     gsettings set org.cinnamon.desktop.interface enable-animations false
     gsettings set org.cinnamon.desktop.sound event-sounds false
     gsettings set org.cinnamon.desktop.sound theme-name "none"
     gsettings set org.cinnamon.desktop.sound volume-sound-enabled false
-    gsettings set org.cinnamon enabled-applets "['panel1:right:7:calendar@cinnamon.org:29', 'panel1:left:1:grouped-window-list@cinnamon.org:34', 'panel1:left:0:menu@cinnamon.org:37', 'panel1:right:4:network@cinnamon.org:38', 'panel1:right:3:printers@cinnamon.org:39', 'panel1:right:0:removable-drives@cinnamon.org:40', 'panel1:right:1:systray@cinnamon.org:41', 'panel1:right:0:xapp-status@cinnamon.org:42']"
-    gsettings set org.cinnamon panels-enabled "['1:0:top']"
     gsettings set org.cinnamon.sounds login-enabled false
     gsettings set org.cinnamon.sounds logout-enabled false
     gsettings set org.cinnamon.sounds notification-enabled false
