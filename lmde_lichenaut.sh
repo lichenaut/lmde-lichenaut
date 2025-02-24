@@ -3,7 +3,7 @@
 # Exit on fail
 set -e
 
-# Create .desktop file
+# .desktop file creating
 create_desktop_file() {
     NAME=$1
     EXEC=$2
@@ -154,7 +154,7 @@ if [[ "$MODE" == "1" ]]; then
     exit 0
 fi
 
-# Pre-APT Installation
+# Pre-APT installation mode
 if [[ "$MODE" == "2" ]]; then
 
     # Prerequisite
@@ -203,11 +203,11 @@ if [[ "$MODE" == "2" ]]; then
     echo 'deb http://download.opensuse.org/repositories/hardware:/razer/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/hardware:razer.list
     curl -SL https://download.opensuse.org/repositories/hardware:razer/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/hardware_razer.gpg > /dev/null
 
-    # Spotify repository
+    # Spotify
     curl -S https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
     echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 
-    # Tor Browser
+    # Tor
     echo "deb     [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg] https://deb.torproject.org/torproject.org bookworm main
 deb-src [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg] https://deb.torproject.org/torproject.org bookworm main" | sudo tee /etc/apt/sources.list.d/tor.list > /dev/null
     wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | sudo tee /usr/share/keyrings/deb.torproject.org-keyring.gpg > /dev/null
@@ -215,47 +215,56 @@ fi
 
 # APT
 sudo apt update -y
-sudo apt full-upgrade -y
 
 # Installation Mode
 if [[ "$MODE" == "2" ]]; then
 
+    # ADB, fastboot
+    curl -o /tmp/platform-tools.zip "https://dl.google.com/android/repository/platform-tools-latest-linux.zip"
+    unzip -o /tmp/platform-tools.zip -d "$HOME/adb-fastboot"
+    PROFILE_FILE="$HOME/.profile"
+    if ! grep -q 'platform-tools' "$PROFILE_FILE"; then
+        echo -e '\n# Add ADB & Fastboot to PATH\nif [ -d "$HOME/adb-fastboot/platform-tools" ] ; then\n    export PATH="$HOME/adb-fastboot/platform-tools:$PATH"\nfi' >> "$PROFILE_FILE"
+    fi
+    rm /tmp/platform-tools.zip
+
     # APT
-    sudo apt install -y apt-transport-https tor deb.torproject.org-keyring torbrowser-launcher npm python3.11-venv dconf-editor spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload # tlp tlp-rdw
+    sudo apt install -y apt-transport-https cups dconf-editor deb.torproject.org-keyring git guake hplip htop jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
     sudo systemctl enable --now cups
-
-    # Rust
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    . "$HOME/.cargo/env"
-
-    # Patch Spotify
-    rm -rf ~/spotify-adblock
-    git clone https://github.com/abba23/spotify-adblock.git ~/spotify-adblock    
-    make -C ~/spotify-adblock
-    sudo make -C ~/spotify-adblock install
-    create_desktop_file "Spotify" "env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U" "spotify-client" "Audio;Music;Player;AudioVideo;"
-
-    # Flathub
-    flatpak install -y app/dev.vencord.Vesktop/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
-    env GAMEMODERUNEXEC="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only"
-    sudo usermod -a -G gamemode $USER
 
     # Ble.sh
     set -o vi
     rm -rf ~/ble.sh
     git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git ~/ble.sh
     make -C ~/ble.sh install PREFIX=~/.local
-    echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
+    grep -qxF 'source ~/.local/share/blesh/ble.sh' ~/.bashrc || echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
 
-    # Qemu
-    sudo apt install -y qemu-kvm libvirt-daemon-system virt-manager bridge-utils
-    sudo systemctl enable --now libvirtd
+    # Flathub
+    flatpak install -y app/dev.vencord.Vesktop/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
+    env GAMEMODERUNEXEC="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only"
+    sudo usermod -a -G gamemode $USER
 
     # GitHub releases
     install_latest_gh "ThaUnknown/miru" "linux-Miru.*deb" "deb"
+    install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
+    create_desktop_file "NoiseTorch" "noisetorch" "noisetorch" "Audio;Music;Player;AudioVideo;"
+    install_latest_gh "ebkr/r2modmanPlus" ".*AppImage" "AppImage" "R2ModMan"
     install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
+    codium --install-extension serayuzgur.crates
+    codium --install-extension usernamehw.errorlens
+    codium --install-extension dbaeumer.vscode-eslint
+    codium --install-extension tamasfe.even-better-toml
+    COPILOT_VERSION=$(curl -S "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot" | grep -oP '(?<="Version":")[^"]*')
+    curl -S -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+    codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"
+    codium --install-extension ms-toolsai.jupyter
+    codium --install-extension vadimcn.vscode-lldb
     codium --install-extension zhuangtongfa.material-theme
     codium --install-extension esbenp.prettier-vscode
+    codium --install-extension ms-python.python
+    codium --install-extension rust-lang.rust-analyzer
+    codium --install-extension bradlc.vscode-tailwindcss
+    codium --install-extension Vue.volar
     touch ~/.config/VSCodium/User/settings.json
     echo "{
   \"workbench.sideBar.location\": \"right\",
@@ -273,22 +282,6 @@ if [[ "$MODE" == "2" ]]; then
     \"command\": \"-workbench.action.togglePanel\"
   }
 ]" > ~/.config/VSCodium/User/keybindings.json
-    codium --install-extension ms-python.python
-    codium --install-extension rust-lang.rust-analyzer
-    codium --install-extension Vue.volar
-    codium --install-extension serayuzgur.crates
-    codium --install-extension tamasfe.even-better-toml
-    codium --install-extension vadimcn.vscode-lldb
-    codium --install-extension usernamehw.errorlens
-    codium --install-extension dbaeumer.vscode-eslint
-    codium --install-extension bradlc.vscode-tailwindcss
-    codium --install-extension ms-toolsai.jupyter
-    COPILOT_VERSION=$(curl -S "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot" | grep -oP '(?<="Version":")[^"]*')
-    curl -S -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
-    codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"
-    install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
-    create_desktop_file "NoiseTorch" "noisetorch" "noisetorch" "Audio;Music;Player;AudioVideo;"
-    install_latest_gh "ebkr/r2modmanPlus" ".*AppImage" "AppImage" "R2ModMan"
 
     # Postman
     ARCHIVE="$HOME/postman.tar.gz"
@@ -297,80 +290,39 @@ if [[ "$MODE" == "2" ]]; then
     tar -xzf "$ARCHIVE" -C "$HOME"
     rm "$ARCHIVE"
 
-    # ADB and fastboot
-    curl -o /tmp/platform-tools.zip "https://dl.google.com/android/repository/platform-tools-latest-linux.zip"
-    unzip -o /tmp/platform-tools.zip -d "$HOME/adb-fastboot"
-    PROFILE_FILE="$HOME/.profile"
-    if ! grep -q 'platform-tools' "$PROFILE_FILE"; then
-        echo -e '\n# Add ADB & Fastboot to PATH' >> "$PROFILE_FILE"
-        echo 'if [ -d "$HOME/adb-fastboot/platform-tools" ] ; then' >> "$PROFILE_FILE"
-        echo '    export PATH="$HOME/adb-fastboot/platform-tools:$PATH"' >> "$PROFILE_FILE"
-        echo 'fi' >> "$PROFILE_FILE"
-    fi
-    rm /tmp/platform-tools.zip
+    # Qemu
+    sudo apt install -y bridge-utils libvirt-daemon-system qemu-kvm virt-manager
+    sudo systemctl enable --now libvirtd
 
-    # Debloat
+    # Rust
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    . "$HOME/.cargo/env"
+
+    # Spotify patching
+    rm -rf ~/spotify-adblock
+    git clone https://github.com/abba23/spotify-adblock.git ~/spotify-adblock
+    make -C ~/spotify-adblock
+    sudo make -C ~/spotify-adblock install
+    create_desktop_file "Spotify" "env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U" "spotify-client" "Audio;Music;Player;AudioVideo;"
+
+    # Purge
     sudo apt purge -y baobab celluloid drawing gnome-calendar gnome-logs gnome-power-manager gnote hexchat hypnotix nano onboard pix rhythmbox seahorse simple-scan thunderbird warpinator webapp-manager xreader
 
-    # GRUB
-    sudo sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/' "/etc/default/grub"
-    sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
-    sudo update-grub
-
-    # Startup Applications
-    create_autostart_entry "Redshift" "redshift-gtk" "redshift" "redshift-gtk"
-    create_autostart_entry "Guake Terminal" "guake" "guake" "guake"
-    create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
-    create_autostart_entry "Update Manager" "mintupdate-launcher" "mintupdate" "mintupdate"
-    sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/mintupdate.desktop"
-    sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/blueman.desktop"
-
-    # Default Applications
-    echo "[Default Applications]
-    application/octet-stream=org.keepassxc.KeePassXC.desktop
-    x-scheme-handler/http=io.gitlab.librewolf-community.desktop
-    x-scheme-handler/https=io.gitlab.librewolf-community.desktop
-    x-scheme-handler/postman=Postman.desktop
-    audio/*=vlc.desktop
-    video/*=vlc.desktop
-    application/pdf=io.gitlab.librewolf-community.desktop
-    application/javascript=codium.desktop
-    application/x-httpd-php3=codium.desktop
-    application/x-httpd-php4=codium.desktop
-    application/x-httpd-php5=codium.desktop
-    application/x-m4=codium.desktop
-    application/x-php=codium.desktop
-    application/x-ruby=codium.desktop
-    application/x-shellscript=codium.desktop
-    application/xml=codium.desktop
-    text/*=codium.desktop
-    text/css=codium.desktop
-    text/turtle=codium.desktop
-    text/x-c++hdr=codium.desktop
-    text/x-c++src=codium.desktop
-    text/x-chdr=codium.desktop
-    text/x-csharp=codium.desktop
-    text/x-csrc=codium.desktop
-    text/x-diff=codium.desktop
-    text/x-dsrc=codium.desktop
-    text/x-fortran=codium.desktop
-    text/x-java=codium.desktop
-    text/x-makefile=codium.desktop
-    text/x-pascal=codium.desktop
-    text/x-perl=codium.desktop
-    text/x-python=codium.desktop
-    text/x-sql=codium.desktop
-    text/x-vb=codium.desktop
-    text/yaml=codium.desktop
-
-    [Added Associations]
-    application/octet-stream=org.keepassxc.KeePassXC.desktop
-    x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop
-    audio/*=vlc.desktop
-    application/pdf=io.gitlab.librewolf-community.desktop;libreoffice-draw.desktop
-    video/*=vlc.desktop" > ~/.config/mimeapps.list
-
     # Cinnamon tweaks
+    gsettings set org.cinnamon desktop-effects-workspace false
+    gsettings set org.cinnamon.desktop.interface enable-animations false
+    gsettings set org.cinnamon.desktop.sound event-sounds false
+    gsettings set org.cinnamon.desktop.sound theme-name "none"
+    gsettings set org.cinnamon.desktop.sound volume-sound-enabled false
+    gsettings set org.cinnamon.enabled-applets "['panel1:right:7:calendar@cinnamon.org:29', 'panel1:left:1:grouped-window-list@cinnamon.org:34', 'panel1:left:0:menu@cinnamon.org:37', 'panel1:right:4:network@cinnamon.org:38', 'panel1:right:3:printers@cinnamon.org:39', 'panel1:right:0:removable-drives@cinnamon.org:40', 'panel1:right:1:systray@cinnamon.org:41', 'panel1:right:0:xapp-status@cinnamon.org:42']"
+    gsettings set org.cinnamon.panels-enabled "['1:0:top']"
+    gsettings set org.cinnamon.sounds login-enabled false
+    gsettings set org.cinnamon.sounds logout-enabled false
+    gsettings set org.cinnamon.sounds notification-enabled false
+    gsettings set org.cinnamon.sounds plug-enabled false
+    gsettings set org.cinnamon.sounds switch-enabled false
+    gsettings set org.cinnamon.sounds tile-enabled false
+    gsettings set org.cinnamon.sounds unplug-enabled false
     update_cinnamon_config "$HOME/.config/cinnamon/spices/calendar@cinnamon.org" \
         '.["show-week-numbers"].value = true |
         .["use-custom-format"].value = true |
@@ -391,29 +343,74 @@ if [[ "$MODE" == "2" ]]; then
                 "spotify.desktop",
                 "dev.vencord.Vesktop.desktop"
             ]'
-    gsettings set org.cinnamon.desktop.interface enable-animations false
-    gsettings set org.cinnamon desktop-effects-workspace false
-    gsettings set org.cinnamon panels-enabled "['1:0:top']"
-    gsettings set org.cinnamon enabled-applets "['panel1:right:7:calendar@cinnamon.org:29', 'panel1:left:1:grouped-window-list@cinnamon.org:34', 'panel1:left:0:menu@cinnamon.org:37', 'panel1:right:4:network@cinnamon.org:38', 'panel1:right:3:printers@cinnamon.org:39', 'panel1:right:0:removable-drives@cinnamon.org:40', 'panel1:right:1:systray@cinnamon.org:41', 'panel1:right:0:xapp-status@cinnamon.org:42']"
-    gsettings set org.cinnamon.desktop.sound event-sounds false
-    gsettings set org.cinnamon.desktop.sound theme-name "none"
-    gsettings set org.cinnamon.desktop.sound volume-sound-enabled false
-    gsettings set org.cinnamon.sounds login-enabled false
-    gsettings set org.cinnamon.sounds logout-enabled false
-    gsettings set org.cinnamon.sounds notification-enabled false
-    gsettings set org.cinnamon.sounds plug-enabled false
-    gsettings set org.cinnamon.sounds switch-enabled false
-    gsettings set org.cinnamon.sounds tile-enabled false
-    gsettings set org.cinnamon.sounds unplug-enabled false
+
+    # Default applications
+    echo "[Default Applications]
+application/octet-stream=org.keepassxc.KeePassXC.desktop
+application/javascript=codium.desktop
+application/pdf=io.gitlab.librewolf-community.desktop
+application/x-httpd-php3=codium.desktop
+application/x-httpd-php4=codium.desktop
+application/x-httpd-php5=codium.desktop
+application/x-m4=codium.desktop
+application/x-php=codium.desktop
+application/x-ruby=codium.desktop
+application/x-shellscript=codium.desktop
+application/xml=codium.desktop
+audio/*=vlc.desktop
+text/*=codium.desktop
+text/css=codium.desktop
+text/turtle=codium.desktop
+text/x-c++hdr=codium.desktop
+text/x-c++src=codium.desktop
+text/x-chdr=codium.desktop
+text/x-csharp=codium.desktop
+text/x-csrc=codium.desktop
+text/x-diff=codium.desktop
+text/x-dsrc=codium.desktop
+text/x-fortran=codium.desktop
+text/x-java=codium.desktop
+text/x-makefile=codium.desktop
+text/x-pascal=codium.desktop
+text/x-perl=codium.desktop
+text/x-python=codium.desktop
+text/x-sql=codium.desktop
+text/x-vb=codium.desktop
+text/yaml=codium.desktop
+video/*=vlc.desktop
+x-scheme-handler/http=io.gitlab.librewolf-community.desktop
+x-scheme-handler/https=io.gitlab.librewolf-community.desktop
+x-scheme-handler/postman=Postman.desktop
+
+[Added Associations]
+application/octet-stream=org.keepassxc.KeePassXC.desktop
+application/pdf=io.gitlab.librewolf-community.desktop;libreoffice-draw.desktop
+audio/*=vlc.desktop
+video/*=vlc.desktop
+x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~/.config/mimeapps.list
+    sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/guake 100
+
+    # Gamemode apps
+    sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/usr/share/applications/r2modman.desktop"
+    sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
+
+    # GRUB
+    sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
+    sudo sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/' "/etc/default/grub"
+    sudo update-grub
 
     # Guake tweaks
     gsettings set guake.keybindings.global show-hide "'F5'"
-    gsettings set guake.style.font palette-name "'Bluloco'"
     gsettings set guake.style.font palette "'#505050505050:#FFFF2E2E3F3F:#6F6FD6D65D5D:#FFFF6F6F2323:#34347676FFFF:#98986161F8F8:#0000CDCDB3B3:#FFFFFCFCC2C2:#7C7C7C7C7C7C:#FFFF64648080:#3F3FC5C56B6B:#F9F9C8C85959:#0000B1B1FEFE:#B6B68D8DFFFF:#B3B38B8B7D7D:#FFFFFEFEE3E3:#DEDEE0E0DFDF:#262626262626'"
+    gsettings set guake.style.font palette-name "'Bluloco'"
 
-    # Gamemode apps
-    sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
-    sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/usr/share/applications/r2modman.desktop"
+    # Startup applications
+    create_autostart_entry "Guake Terminal" "guake" "guake" "guake"
+    create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
+    create_autostart_entry "Redshift" "redshift-gtk" "redshift" "redshift-gtk"
+    create_autostart_entry "Update Manager" "mintupdate-launcher" "mintupdate" "mintupdate"
+    sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/blueman.desktop"
+    sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/mintupdate.desktop"
 
     # Reload
     source ~/.bashrc
@@ -423,7 +420,7 @@ if [[ "$MODE" == "2" ]]; then
 fi
 
 # APT
-sudo apt upgrade -y && sudo apt autoremove -y && sudo apt clean -y
+sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt clean -y
 
 # Flathub
 flatpak update -y
@@ -431,9 +428,10 @@ flatpak update -y
 # Rust
 ~/.cargo/bin/rustup update
 
-# Browser
+# Browser preferencing
 update_pref_js "$HOME/.mozilla/firefox/*.default-release"
 update_pref_js "$HOME/.var/app/io.gitlab.librewolf-community/.librewolf/*.default-default"
+update_pref_js "$HOME/.local/share/torbrowser/tbb/x86_64/tor-browser/Browser/TorBrowser/Data/Browser/profile.default"
 
 # Flavor
 if [[ "$MODE" == "2" ]]; then
