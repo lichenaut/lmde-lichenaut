@@ -394,6 +394,9 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/usr/share/applications/r2modman.desktop"
     sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
 
+    # GNOME tweaks
+    gsettings set org.gnome.desktop.peripherals.mouse accel-profile "'flat'"
+
     # GRUB tweaks
     sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
     sudo sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/' "/etc/default/grub"
