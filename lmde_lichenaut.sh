@@ -344,7 +344,7 @@ if [[ "$MODE" == "2" ]]; then
                 "dev.vencord.Vesktop.desktop"
             ]'
 
-    # Default applications
+    # Default apps
     echo "[Default Applications]
 application/octet-stream=org.keepassxc.KeePassXC.desktop
 application/javascript=codium.desktop
@@ -394,7 +394,7 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/usr/share/applications/r2modman.desktop"
     sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
 
-    # GRUB
+    # GRUB tweaks
     sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
     sudo sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/' "/etc/default/grub"
     sudo update-grub
@@ -404,7 +404,7 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     gsettings set guake.style.font palette "'#505050505050:#FFFF2E2E3F3F:#6F6FD6D65D5D:#FFFF6F6F2323:#34347676FFFF:#98986161F8F8:#0000CDCDB3B3:#FFFFFCFCC2C2:#7C7C7C7C7C7C:#FFFF64648080:#3F3FC5C56B6B:#F9F9C8C85959:#0000B1B1FEFE:#B6B68D8DFFFF:#B3B38B8B7D7D:#FFFFFEFEE3E3:#DEDEE0E0DFDF:#262626262626'"
     gsettings set guake.style.font palette-name "'Bluloco'"
 
-    # Startup applications
+    # Startup apps
     create_autostart_entry "Guake Terminal" "guake" "guake" "guake"
     create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
     create_autostart_entry "Redshift" "redshift-gtk" "redshift" "redshift-gtk"
