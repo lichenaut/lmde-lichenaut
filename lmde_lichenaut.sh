@@ -206,16 +206,22 @@ if [[ "$MODE" == "2" ]]; then
     # Spotify repository
     curl -S https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
     echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+
+    # Tor Browser
+    echo "deb     [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg] https://deb.torproject.org/torproject.org bookworm main
+deb-src [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg] https://deb.torproject.org/torproject.org bookworm main" | sudo tee /etc/apt/sources.list.d/tor.list > /dev/null
+    wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | sudo tee /usr/share/keyrings/deb.torproject.org-keyring.gpg > /dev/null
 fi
 
 # APT
-sudo apt dist-update -y
+sudo apt update -y
+sudo apt full-upgrade -y
 
 # Installation Mode
 if [[ "$MODE" == "2" ]]; then
 
     # APT
-    sudo apt install -y npm python3.11-venv dconf-editor spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload # tlp tlp-rdw
+    sudo apt install -y apt-transport-https tor deb.torproject.org-keyring torbrowser-launcher npm python3.11-venv dconf-editor spotify-client python3-pip nodejs vlc vim sqlitebrowser openrazer-meta razergenie cups hplip htop krita keepassxc kdenlive guake git podman jq nvidia-driver preload # tlp tlp-rdw
     sudo systemctl enable --now cups
 
     # Rust
@@ -230,7 +236,7 @@ if [[ "$MODE" == "2" ]]; then
     create_desktop_file "Spotify" "env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U" "spotify-client" "Audio;Music;Player;AudioVideo;"
 
     # Flathub
-    flatpak install -y pp/com.discordapp.Discord/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
+    flatpak install -y app/dev.vencord.Vesktop/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
     env GAMEMODERUNEXEC="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only"
     sudo usermod -a -G gamemode $USER
 
@@ -280,13 +286,6 @@ if [[ "$MODE" == "2" ]]; then
     COPILOT_VERSION=$(curl -S "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot" | grep -oP '(?<="Version":")[^"]*')
     curl -S -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
     codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"
-    # if [ ! -d "~/linux-x86_64" ]; then
-    #     install_latest_gh "DNSCrypt/dnscrypt-proxy" "linux_x86_64" "tar.gz"
-    #     cp ~/linux-x86_64/example-dnscrypt-proxy.toml ~/linux-x86_64/dnscrypt-proxy.toml
-    #     sudo ~/linux-x86_64/dnscrypt-proxy -service install && sudo ~/linux-x86_64/dnscrypt-proxy -service start
-    # else
-    #     echo "dnscrypt-proxy directory found. Skipping dnscrypt-proxy proxy server setup."
-    # fi
     install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
     create_desktop_file "NoiseTorch" "noisetorch" "noisetorch" "Audio;Music;Player;AudioVideo;"
     install_latest_gh "ebkr/r2modmanPlus" ".*AppImage" "AppImage" "R2ModMan"
@@ -383,14 +382,14 @@ if [[ "$MODE" == "2" ]]; then
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
                 "spotify.desktop",
-                "com.discordapp.Discord.desktop"
+                "dev.vencord.Vesktop.desktop"
             ] |
             .["pinned-apps"].default = [
                 "nemo.desktop",
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
                 "spotify.desktop",
-                "com.discordapp.Discord.desktop"
+                "dev.vencord.Vesktop.desktop"
             ]'
     gsettings set org.cinnamon.desktop.interface enable-animations false
     gsettings set org.cinnamon desktop-effects-workspace false
@@ -452,6 +451,3 @@ case "$REBOOT_CHOICE" in
     echo && echo "Script finished."
     ;;
 esac
-# rss client
-# ? https://github.com/FreshRSS/FreshRSS#installation
-# self hosted vpn?
