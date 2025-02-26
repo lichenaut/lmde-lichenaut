@@ -250,21 +250,22 @@ if [[ "$MODE" == "2" ]]; then
     create_desktop_file "NoiseTorch" "noisetorch" "noisetorch" "Audio;Music;Player;AudioVideo;"
     install_latest_gh "ebkr/r2modmanPlus" ".*AppImage" "AppImage" "R2ModMan"
     install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
-    codium --install-extension serayuzgur.crates
-    codium --install-extension usernamehw.errorlens
-    codium --install-extension dbaeumer.vscode-eslint
-    codium --install-extension tamasfe.even-better-toml
+    codium --install-extension serayuzgur.crates --force
+    codium --install-extension usernamehw.errorlens --force
+    codium --install-extension dbaeumer.vscode-eslint --force
+    codium --install-extension tamasfe.even-better-toml --force
     COPILOT_VERSION=$(curl -S "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot" | grep -oP '(?<="Version":")[^"]*')
     curl -S -o "${HOME}/github.copilot-${COPILOT_VERSION}.vsix" "https://github.gallery.vsassets.io/_apis/public/gallery/publisher/github/extension/copilot/${COPILOT_VERSION}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
-    codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"
-    codium --install-extension ms-toolsai.jupyter
-    codium --install-extension vadimcn.vscode-lldb
-    codium --install-extension zhuangtongfa.material-theme
-    codium --install-extension esbenp.prettier-vscode
-    codium --install-extension ms-python.python
-    codium --install-extension rust-lang.rust-analyzer
-    codium --install-extension bradlc.vscode-tailwindcss
-    codium --install-extension Vue.volar
+    codium --install-extension "${HOME}/github.copilot-${COPILOT_VERSION}.vsix"  --force
+    find "${HOME}" -name "github.copilot-*.vsix" -not -name "github.copilot-${COPILOT_VERSION}.vsix" -delete
+    codium --install-extension ms-toolsai.jupyter --force
+    codium --install-extension vadimcn.vscode-lldb --force
+    codium --install-extension zhuangtongfa.material-theme --force
+    codium --install-extension esbenp.prettier-vscode --force
+    codium --install-extension ms-python.python --force
+    codium --install-extension rust-lang.rust-analyzer --force
+    codium --install-extension bradlc.vscode-tailwindcss --force
+    codium --install-extension Vue.volar --force
     touch ~/.config/VSCodium/User/settings.json
     echo "{
   \"workbench.sideBar.location\": \"right\",
