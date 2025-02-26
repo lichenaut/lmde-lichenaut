@@ -11,7 +11,7 @@ chmod +x lmde_lichenaut.sh
 
 The script will bring up this menu for you to choose an option:
 
-```nocopy
+```
 LMDE ISO download: https://www.linuxmint.com/download_lmde.php
 Script modes:
 
