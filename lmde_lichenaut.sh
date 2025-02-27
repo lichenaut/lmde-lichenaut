@@ -85,13 +85,13 @@ update_cinnamon_config() {
     local JQ_FILTER="$2"
     if [[ ! -d "$CONFIG_DIR" ]]; then
         echo "$CONFIG_DIR not found!"
-        return 1
+        exit 1
     fi
     for FILE in "$CONFIG_DIR"/*.json; do
         [[ -f "$FILE" ]] || continue
         jq "$JQ_FILTER" "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE" || {
             echo "Failed to update $FILE"
-            return 1
+            exit 1
         }
     done
 }
@@ -319,26 +319,6 @@ if [[ "$MODE" == "2" ]]; then
     gsettings set org.cinnamon.sounds unplug-enabled false
     gsettings set org.cinnamon.theme name "'Mint-Y-Dark'"
     gsettings set org.x.apps.portal color-scheme "'prefer-dark'"
-    update_cinnamon_config "$HOME/.config/cinnamon/spices/calendar@cinnamon.org" \
-        '.["show-week-numbers"].value = true |
-        .["use-custom-format"].value = true |
-        .["custom-format"].value = "%A %B %e, %H:%M" |
-        .["custom-tooltip-format"].value = "%A %B %e, %H:%M"'
-    update_cinnamon_config "$HOME/.config/cinnamon/spices/grouped-window-list@cinnamon.org" \
-        '.["pinned-apps"].value = [
-                "nemo.desktop",
-                "io.gitlab.librewolf-community.desktop:flatpak",
-                "codium.desktop",
-                "spotify.desktop",
-                "dev.vencord.Vesktop.desktop"
-            ] |
-            .["pinned-apps"].default = [
-                "nemo.desktop",
-                "io.gitlab.librewolf-community.desktop:flatpak",
-                "codium.desktop",
-                "spotify.desktop",
-                "dev.vencord.Vesktop.desktop"
-            ]'
 
     # Default apps
     echo "[Default Applications]
@@ -415,6 +395,28 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     source ~/.profile
     gtk-update-icon-cache
     cinnamon --replace > /dev/null 2>&1 &
+
+    # Cinnamon tweaks part 2
+    update_cinnamon_config "$HOME/.config/cinnamon/spices/calendar@cinnamon.org" \
+        '.["show-week-numbers"].value = true |
+        .["use-custom-format"].value = true |
+        .["custom-format"].value = "%A %B %e, %H:%M" |
+        .["custom-tooltip-format"].value = "%A %B %e, %H:%M"'
+    update_cinnamon_config "$HOME/.config/cinnamon/spices/grouped-window-list@cinnamon.org" \
+        '.["pinned-apps"].value = [
+                "nemo.desktop",
+                "io.gitlab.librewolf-community.desktop:flatpak",
+                "codium.desktop",
+                "spotify.desktop",
+                "dev.vencord.Vesktop.desktop"
+            ] |
+            .["pinned-apps"].default = [
+                "nemo.desktop",
+                "io.gitlab.librewolf-community.desktop:flatpak",
+                "codium.desktop",
+                "spotify.desktop",
+                "dev.vencord.Vesktop.desktop"
+            ]'
 fi
 
 # APT
