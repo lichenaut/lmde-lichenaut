@@ -231,7 +231,7 @@ if [[ "$MODE" == "2" ]]; then
     grep -qxF 'source ~/.local/share/blesh/ble.sh' ~/.bashrc || echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
 
     # Flathub
-    flatpak install -y app/dev.vencord.Vesktop/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
+    flatpak install -y app/dev.vencord.Vesktop/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.prismlauncher.PrismLauncher/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
     env GAMEMODERUNEXEC="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only"
     sudo usermod -a -G gamemode $USER
 
