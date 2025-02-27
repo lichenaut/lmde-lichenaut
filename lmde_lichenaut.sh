@@ -305,6 +305,8 @@ if [[ "$MODE" == "2" ]]; then
     gsettings set org.cinnamon enabled-applets "['panel1:right:7:calendar@cinnamon.org:29', 'panel1:left:1:grouped-window-list@cinnamon.org:34', 'panel1:left:0:menu@cinnamon.org:37', 'panel1:right:4:network@cinnamon.org:38', 'panel1:right:3:printers@cinnamon.org:39', 'panel1:right:0:removable-drives@cinnamon.org:40', 'panel1:right:1:systray@cinnamon.org:41', 'panel1:right:0:xapp-status@cinnamon.org:42']"
     gsettings set org.cinnamon panels-enabled "['1:0:top']"
     gsettings set org.cinnamon.desktop.interface enable-animations false
+    gsettings set org.cinnamon.desktop.interface gtk-theme "'Mint-Y-Dark'"
+    gsettings set org.cinnamon.desktop.interface icon-theme "'Mint-Y'"
     gsettings set org.cinnamon.desktop.sound event-sounds false
     gsettings set org.cinnamon.desktop.sound theme-name "none"
     gsettings set org.cinnamon.desktop.sound volume-sound-enabled false
@@ -315,6 +317,8 @@ if [[ "$MODE" == "2" ]]; then
     gsettings set org.cinnamon.sounds switch-enabled false
     gsettings set org.cinnamon.sounds tile-enabled false
     gsettings set org.cinnamon.sounds unplug-enabled false
+    gsettings set org.cinnamon.theme name "'Mint-Y-Dark'"
+    gsettings set org.x.apps.portal color-scheme "'prefer-dark'"
     update_cinnamon_config "$HOME/.config/cinnamon/spices/calendar@cinnamon.org" \
         '.["show-week-numbers"].value = true |
         .["use-custom-format"].value = true |
@@ -404,7 +408,6 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
     create_autostart_entry "Redshift" "redshift-gtk" "redshift" "redshift-gtk"
     create_autostart_entry "Update Manager" "mintupdate-launcher" "mintupdate" "mintupdate"
-    sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/blueman.desktop"
     sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/mintupdate.desktop"
 
     # Reload
