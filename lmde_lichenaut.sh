@@ -307,6 +307,7 @@ if [[ "$MODE" == "2" ]]; then
     gsettings set org.cinnamon.desktop.interface enable-animations false
     gsettings set org.cinnamon.desktop.interface gtk-theme "'Mint-Y-Dark'"
     gsettings set org.cinnamon.desktop.interface icon-theme "'Mint-Y'"
+    gsettings set org.cinnamon.desktop.peripherals.mouse accel-profile "'flat'"
     gsettings set org.cinnamon.desktop.sound event-sounds false
     gsettings set org.cinnamon.desktop.sound theme-name "none"
     gsettings set org.cinnamon.desktop.sound volume-sound-enabled false
@@ -367,16 +368,12 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/guake 100
 
     # Gamemode apps
-    if [[ $? -ne 0 ]] &&! grep -q "Exec=gamemoderun" "/usr/share/applications/r2modman.desktop"; then
+    if [ $(grep -q "Exec=gamemoderun" "/usr/share/applications/r2modman.desktop"; echo $?) -ne 0 ]; then
         sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "/usr/share/applications/r2modman.desktop"
     fi
-
-    if [[ $? -ne 0 ]] &&! grep -q "Exec=gamemoderun" "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"; then
+    if [ $(grep -q "Exec=gamemoderun" "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
         sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
     fi
-
-    # GNOME tweaks
-    gsettings set org.gnome.desktop.peripherals.mouse accel-profile "'flat'"
 
     # GRUB tweaks
     sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
@@ -389,12 +386,12 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     gsettings set guake.style.font palette-name "'Bluloco'"
 
     # Startup apps
-    bluetoothctl power off
     create_autostart_entry "Guake Terminal" "guake" "guake" "guake"
     create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
     create_autostart_entry "Redshift" "redshift-gtk" "redshift" "redshift-gtk"
     create_autostart_entry "Update Manager" "mintupdate-launcher" "mintupdate" "mintupdate"
     sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/mintupdate.desktop"
+    sudo systemctl disable bluetooth.service
 
     # Reload
     source ~/.bashrc
