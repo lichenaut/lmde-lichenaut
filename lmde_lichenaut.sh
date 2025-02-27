@@ -384,6 +384,7 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     gsettings set guake.style.font palette-name "'Bluloco'"
 
     # Startup apps
+    bluetoothctl power off
     create_autostart_entry "Guake Terminal" "guake" "guake" "guake"
     create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
     create_autostart_entry "Redshift" "redshift-gtk" "redshift" "redshift-gtk"
