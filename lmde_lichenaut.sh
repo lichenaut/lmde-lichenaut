@@ -367,8 +367,13 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/guake 100
 
     # Gamemode apps
-    sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/usr/share/applications/r2modman.desktop"
-    sudo sed -i '/^Exec=/s|^Exec=.*|Exec=gamemoderun &|' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
+    if [[ $? -ne 0 ]] &&! grep -q "Exec=gamemoderun" "/usr/share/applications/r2modman.desktop"; then
+        sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "/usr/share/applications/r2modman.desktop"
+    fi
+
+    if [[ $? -ne 0 ]] &&! grep -q "Exec=gamemoderun" "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"; then
+        sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
+    fi
 
     # GNOME tweaks
     gsettings set org.gnome.desktop.peripherals.mouse accel-profile "'flat'"
