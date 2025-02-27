@@ -374,6 +374,9 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     if [ $(grep -q "Exec=gamemoderun" "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
         sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
     fi
+    if [ $(grep -q "Exec=gamemoderun" "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
+        sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"
+    fi
 
     # GRUB tweaks
     sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
