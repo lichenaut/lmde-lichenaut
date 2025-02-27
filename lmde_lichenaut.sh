@@ -168,15 +168,6 @@ if [[ "$MODE" == "2" ]]; then
         ;;
     esac
 
-    # Swapfile
-    if [ ! -f /swapfile ]; then
-        sudo fallocate -l 4G /swapfile
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
-        sudo swapon /swapfile
-    fi
-
     # Disable autoconnect to wireless
     nmcli -t -f NAME connection show | while read -r CONN; do
         if [[ "$CONN" != *"Wired"* ]]; then
@@ -219,17 +210,17 @@ sudo apt update -y
 # Installation Mode
 if [[ "$MODE" == "2" ]]; then
 
-    # ADB, fastboot
-    curl -o /tmp/platform-tools.zip "https://dl.google.com/android/repository/platform-tools-latest-linux.zip"
-    unzip -o /tmp/platform-tools.zip -d "$HOME/adb-fastboot"
-    PROFILE_FILE="$HOME/.profile"
-    if ! grep -q 'platform-tools' "$PROFILE_FILE"; then
-        echo -e '\n# Add ADB & Fastboot to PATH\nif [ -d "$HOME/adb-fastboot/platform-tools" ] ; then\n    export PATH="$HOME/adb-fastboot/platform-tools:$PATH"\nfi' >> "$PROFILE_FILE"
-    fi
-    rm /tmp/platform-tools.zip
+    # # ADB, fastboot
+    # curl -o /tmp/platform-tools.zip "https://dl.google.com/android/repository/platform-tools-latest-linux.zip"
+    # unzip -o /tmp/platform-tools.zip -d "$HOME/adb-fastboot"
+    # PROFILE_FILE="$HOME/.profile"
+    # if ! grep -q 'platform-tools' "$PROFILE_FILE"; then
+    #     echo -e '\n# Add ADB & Fastboot to PATH\nif [ -d "$HOME/adb-fastboot/platform-tools" ] ; then\n    export PATH="$HOME/adb-fastboot/platform-tools:$PATH"\nfi' >> "$PROFILE_FILE"
+    # fi
+    # rm /tmp/platform-tools.zip
 
     # APT
-    sudo apt install -y apt-transport-https cups dconf-editor deb.torproject.org-keyring git guake hplip htop jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
+    sudo apt install -y apt-transport-https bleachbit cups dconf-editor deb.torproject.org-keyring git guake hplip htop jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
     sudo systemctl enable --now cups
 
     # Ble.sh
@@ -284,12 +275,12 @@ if [[ "$MODE" == "2" ]]; then
   }
 ]" > ~/.config/VSCodium/User/keybindings.json
 
-    # Postman
-    ARCHIVE="$HOME/postman.tar.gz"
-    mkdir -p "$HOME"
-    wget -O "$ARCHIVE" "https://dl.pstmn.io/download/latest/linux_64"
-    tar -xzf "$ARCHIVE" -C "$HOME"
-    rm "$ARCHIVE"
+    # # Postman
+    # ARCHIVE="$HOME/postman.tar.gz"
+    # mkdir -p "$HOME"
+    # wget -O "$ARCHIVE" "https://dl.pstmn.io/download/latest/linux_64"
+    # tar -xzf "$ARCHIVE" -C "$HOME"
+    # rm "$ARCHIVE"
 
     # Qemu
     sudo apt install -y bridge-utils libvirt-daemon-system qemu-kvm virt-manager
