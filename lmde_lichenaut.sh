@@ -369,13 +369,13 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
 
     # Gamemode apps
     if [ $(grep -q "Exec=gamemoderun" "/usr/share/applications/r2modman.desktop"; echo $?) -ne 0 ]; then
-        sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "/usr/share/applications/r2modman.desktop"
+        sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "/usr/share/applications/r2modman.desktop"
     fi
     if [ $(grep -q "Exec=gamemoderun" "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
-        sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
+        sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
     fi
     if [ $(grep -q "Exec=gamemoderun" "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
-        sudo sed -i '/^Exec=/s|^Exec=|Exec=gamemoderun |' "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"
+        sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"
     fi
 
     # GRUB tweaks
