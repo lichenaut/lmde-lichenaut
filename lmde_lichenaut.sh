@@ -233,8 +233,6 @@ if [[ "$MODE" == "2" ]]; then
 
     # Flathub
     flatpak install -y app/dev.vencord.Vesktop/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.prismlauncher.PrismLauncher/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
-    env GAMEMODERUNEXEC="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only"
-    sudo usermod -a -G gamemode $USER
 
     # GitHub releases
     install_latest_gh "ThaUnknown/miru" "linux-Miru.*deb" "deb"
@@ -369,13 +367,15 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/guake 100
 
     # Gamemode apps
-    if [ $(grep -q "Exec=gamemoderun" "/usr/share/applications/r2modman.desktop"; echo $?) -ne 0 ]; then
+    env GAMEMODERUNEXEC="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only"
+    sudo usermod -a -G gamemode $USER
+    if [ $(grep -q "Exec=LD_PRELOAD=\"\" gamemoderun" "/usr/share/applications/r2modman.desktop"; echo $?) -ne 0 ]; then
         sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "/usr/share/applications/r2modman.desktop"
     fi
-    if [ $(grep -q "Exec=gamemoderun" "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
+    if [ $(grep -q "Exec=LD_PRELOAD=\"\" gamemoderun" "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
         sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "/var/lib/flatpak/exports/share/applications/com.valvesoftware.Steam.desktop"
     fi
-    if [ $(grep -q "Exec=gamemoderun" "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
+    if [ $(grep -q "Exec=LD_PRELOAD=\"\" gamemoderun" "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
         sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"
     fi
 
