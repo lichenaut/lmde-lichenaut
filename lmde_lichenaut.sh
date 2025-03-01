@@ -221,6 +221,7 @@ if [[ "$MODE" == "2" ]]; then
 
     # APT
     sudo apt install -y apt-transport-https bleachbit cups dconf-editor deb.torproject.org-keyring git guake hplip htop jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
+    git config --global credential.helper cache
     sudo systemctl enable --now cups
 
     # Ble.sh
