@@ -29,7 +29,7 @@ As the script finishes running, it will ask you if you want to reboot, and waits
 If you choose the \_ option, you will be immediately prompted about:
 
 - **Format**: the locations of your ISO file and drive.
-- **Installation**: prior setup completion.
+- **Installation**: prior setup completion, email address for git.
 - **Update**: N/A
 
 ## Installation and Update options

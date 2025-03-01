@@ -155,6 +155,7 @@ if [[ "$MODE" == "1" ]]; then
 fi
 
 # Pre-APT installation mode
+EMAIL=""
 if [[ "$MODE" == "2" ]]; then
 
     # Prerequisite
@@ -167,6 +168,9 @@ if [[ "$MODE" == "2" ]]; then
         exit 0
         ;;
     esac
+
+    # User email
+    read -p "Enter your email for git: " EMAIL
 
     # Disable autoconnect to wireless
     nmcli -t -f NAME connection show | while read -r CONN; do
@@ -380,7 +384,9 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
         sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"
     fi
 
-    # Git tweak
+    # Git tweaks
+    git config --global user.email $EMAIL
+    git config --global user.name lichenaut
     git config --global credential.helper cache
     grep -qxF 'gpf() {' ~/.bashrc || echo '
 gpf() {
