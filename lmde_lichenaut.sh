@@ -221,7 +221,6 @@ if [[ "$MODE" == "2" ]]; then
 
     # APT
     sudo apt install -y apt-transport-https bleachbit cups dconf-editor deb.torproject.org-keyring git guake hplip htop jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
-    git config --global credential.helper cache
     sudo systemctl enable --now cups
 
     # Ble.sh
@@ -229,7 +228,8 @@ if [[ "$MODE" == "2" ]]; then
     rm -rf ~/ble.sh
     git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git ~/ble.sh
     make -C ~/ble.sh install PREFIX=~/.local
-    grep -qxF 'source ~/.local/share/blesh/ble.sh' ~/.bashrc || echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
+    grep -qxF 'source ~/.local/share/blesh/ble.sh' ~/.bashrc || echo '
+source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
 
     # Flathub
     flatpak install -y app/dev.vencord.Vesktop/x86_64/stable app/io.gitlab.librewolf-community/x86_64/stable app/org.prismlauncher.PrismLauncher/x86_64/stable app/org.telegram.desktop/x86_64/stable app/com.valvesoftware.Steam/x86_64/stable com.jetbrains.IntelliJ-IDEA-Community com.usebottles.bottles us.zoom.Zoom app/com.obsproject.Studio/x86_64/stable
@@ -286,6 +286,7 @@ if [[ "$MODE" == "2" ]]; then
     sudo systemctl enable --now libvirtd
 
     # Rust
+    grep -qxF '. "$HOME/.cargo/env"' ~/.bashrc || echo '' >> ~/.bashrc
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     . "$HOME/.cargo/env"
 
@@ -378,6 +379,16 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     if [ $(grep -q "Exec=LD_PRELOAD=\"\" gamemoderun" "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"; echo $?) -ne 0 ]; then
         sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"
     fi
+
+    # Git tweaks
+    git config --global credential.helper cache
+    grep -qxF 'gpf() {' ~/.bashrc || echo '
+gpf() {
+  read -p "Enter commit message: " message
+  git add .
+  git commit -m "$message"
+  git push
+}' >> ~/.bashrc
 
     # GRUB tweaks
     sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
