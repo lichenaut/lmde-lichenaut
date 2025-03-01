@@ -380,7 +380,7 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
         sudo sed -i '/^Exec=/s|^Exec=|Exec=LD_PRELOAD="" gamemoderun |' "$HOME/.local/share/applications/com.valvesoftware.Steam.desktop"
     fi
 
-    # Git tweaks
+    # Git tweak
     git config --global credential.helper cache
     grep -qxF 'gpf() {' ~/.bashrc || echo '
 gpf() {
