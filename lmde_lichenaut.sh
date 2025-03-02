@@ -278,6 +278,11 @@ source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
   }
 ]" > ~/.config/VSCodium/User/keybindings.json
 
+    # Libsecret
+    sudo apt-get install libsecret-1-0 libsecret-1-dev
+    cd /usr/share/doc/git/contrib/credential/libsecret
+    sudo make
+
     # # Postman
     # ARCHIVE="$HOME/postman.tar.gz"
     # mkdir -p "$HOME"
@@ -387,7 +392,7 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     # Git tweaks
     git config --global user.email $EMAIL
     git config --global user.name lichenaut
-    git config --global credential.helper cache
+    git config --global credential.helper /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
     grep -qxF 'gpf() {' ~/.bashrc || echo '
 gpf() {
   read -p "Enter commit message: " message
