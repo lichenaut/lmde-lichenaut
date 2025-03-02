@@ -393,8 +393,8 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     git config --global user.email $EMAIL
     git config --global user.name lichenaut
     git config --global credential.helper /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
-    grep -qxF 'gpf() {' ~/.bashrc || echo '
-gpf() {
+    grep -qxF 'gpm() {' ~/.bashrc || echo '
+gpm() {
   read -p "Enter commit message: " message
   git add .
   git commit -m "$message"
