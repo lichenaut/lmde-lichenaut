@@ -42,16 +42,6 @@ Using the **Installation** option afterwards is possible, and does update more t
 
 This script adds the following bash functions:
 
-### lus
-
-```
-lus() {
-  ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh 3
-}
-```
-
-Type `lus` to update your system with this script's **Update** option.
-
 ### gpm
 
 ```
@@ -64,3 +54,13 @@ gpm() {
 ```
 
 Type `gpm` inside a Git repository to comment and push all of your changes.
+
+### lus
+
+```
+lus() {
+  ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh 3
+}
+```
+
+Type `lus` to update your system with this script's **Update** option.
