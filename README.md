@@ -37,3 +37,30 @@ If you choose the \_ option, you will be immediately prompted about:
 You are intended to use the **Installation** option first, and then the **Update** option afterwards indefinitely.
 
 Using the **Installation** option afterwards is possible, and does update more than the **Update** option, but is oftentimes redundant.
+
+## Bash Functions
+
+This script adds the following bash functions:
+
+### lus
+
+```
+lus() {
+  ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh 3
+}
+```
+
+Type `lus` to update your system with this script's **Update** option.
+
+### gpm
+
+```
+gpm() {
+  read -p "Enter commit message: " message
+  git add .
+  git commit -m "$message"
+  git push
+}
+```
+
+Type `gpm` inside a Git repository to comment and push all of your changes.
