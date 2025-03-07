@@ -348,7 +348,7 @@ lus() {
     update_cinnamon_config "$HOME/.config/cinnamon/spices/grouped-window-list@cinnamon.org" \
         '(.["pinned-apps"].value = [
             "nemo.desktop",
-            "io.gitlab.librewolf-community.desktop:flatpak",
+            "io.gitlab.librewolf-community.desktop",
             "codium.desktop",
             "spotify.desktop",
             "dev.vencord.Vesktop.desktop"
@@ -358,7 +358,7 @@ lus() {
             "io.gitlab.librewolf-community.desktop:flatpak",
             "codium.desktop",
             "spotify.desktop",
-            "dev.vencord.Vesktop.desktop"
+            "dev.vencord.Vesktop.desktop:flatpak"
         ])'
 
     # Default apps
