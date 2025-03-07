@@ -108,25 +108,27 @@ user_pref(\"gfx.webrender.all\", true);" > "$profile_dir/user.js"
 }
 
 # Choose mode
-MODE=""
-echo "LMDE ISO download: https://www.linuxmint.com/download_lmde.php
-Script modes:
+MODE=$1
+if [[ -z "$MODE" ]]; then
+    echo "LMDE ISO download: https://www.linuxmint.com/download_lmde.php
+    Script modes:
 
-    1) Format drive from ISO
-    2) Installation - Personalize computer, thorough updating
-    3) Update - Streamlined updating
-"
-while true; do
-    read -p "Which do you want to run (0 to abort)? [0-3]: " MODE
-    if [[ "$MODE" == "0" ]]; then
-        echo "Script finished: no mode chosen."
-        exit 0
-    fi
-    case "$MODE" in
-        1|2|3) break ;;
-        *) continue ;;
-    esac
-done
+        1) Format drive from ISO
+        2) Installation - Personalize computer, thorough updating
+        3) Update - Streamlined updating
+    "
+    while true; do
+        read -p "Which do you want to run (0 to abort)? [0-3]: " MODE
+        if [[ "$MODE" == "0" ]]; then
+            echo "Script finished: no mode chosen."
+            exit 0
+        fi
+        case "$MODE" in
+            1|2|3) break ;;
+            *) continue ;;
+        esac
+    done
+fi
 
 # Drive formatting
 if [[ "$MODE" == "1" ]]; then
@@ -280,8 +282,7 @@ source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
 
     # Libsecret
     sudo apt-get install libsecret-1-0 libsecret-1-dev
-    cd /usr/share/doc/git/contrib/credential/libsecret
-    sudo make
+    (cd /usr/share/doc/git/contrib/credential/libsecret && sudo make)
 
     # # Postman
     # ARCHIVE="$HOME/postman.tar.gz"
@@ -308,6 +309,15 @@ source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
 
     # Purge
     sudo apt purge -y baobab celluloid drawing gnome-calendar gnome-logs gnome-power-manager gnote hexchat hypnotix nano onboard pix rhythmbox seahorse simple-scan thunderbird warpinator webapp-manager xreader
+
+    # Bash function for this script
+    mkdir ~/CodiumProjects
+    git clone https://github.com/lichenaut/lmde-lichenaut ~/CodiumProjects/lmde-lichenaut
+    chmod +x ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh
+    grep -qxF 'lus() {' ~/.bashrc || echo '
+lus() {
+  ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh 3
+}' >> ~/.bashrc
 
     # Cinnamon tweaks
     gsettings set org.cinnamon desktop-effects-workspace false
@@ -438,8 +448,8 @@ gpm() {
                 "codium.desktop",
                 "spotify.desktop",
                 "dev.vencord.Vesktop.desktop"
-            ] |
-            .["pinned-apps"].default = [
+            ],
+           .["pinned-apps"].default = [
                 "nemo.desktop",
                 "io.gitlab.librewolf-community.desktop:flatpak",
                 "codium.desktop",
@@ -449,7 +459,7 @@ gpm() {
 fi
 
 # APT
-sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt clean -y
+sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
 
 # Flathub
 flatpak update -y
