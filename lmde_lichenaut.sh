@@ -196,6 +196,9 @@ if [[ "$MODE" == "2" ]]; then
     sudo nmcli connection up "$CONNECTION_NAME"
     sudo systemctl restart NetworkManager
 
+    # NodeJS
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
+
     # OpenRazer
     echo 'deb http://download.opensuse.org/repositories/hardware:/razer/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/hardware:razer.list
     curl -SL https://download.opensuse.org/repositories/hardware:razer/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/hardware_razer.gpg > /dev/null
