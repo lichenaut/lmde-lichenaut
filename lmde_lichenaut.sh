@@ -442,6 +442,9 @@ gpm() {
     gsettings set guake.style.font palette "'#505050505050:#FFFF2E2E3F3F:#6F6FD6D65D5D:#FFFF6F6F2323:#34347676FFFF:#98986161F8F8:#0000CDCDB3B3:#FFFFFCFCC2C2:#7C7C7C7C7C7C:#FFFF64648080:#3F3FC5C56B6B:#F9F9C8C85959:#0000B1B1FEFE:#B6B68D8DFFFF:#B3B38B8B7D7D:#FFFFFEFEE3E3:#DEDEE0E0DFDF:#262626262626'"
     gsettings set guake.style.font palette-name "'Bluloco'"
 
+    # Miscellanenous Tweaks
+    gsettings set org.nemo.preferences show-hidden-files true
+
     # Startup apps
     create_autostart_entry "Guake Terminal" "guake" "guake" "guake"
     create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
