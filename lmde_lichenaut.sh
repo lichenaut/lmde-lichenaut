@@ -196,7 +196,7 @@ if [[ "$MODE" == "2" ]]; then
     sudo nmcli connection up "$CONNECTION_NAME"
     sudo systemctl restart NetworkManager
 
-    # NodeJS
+    # Node.js
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
 
     # OpenRazer
