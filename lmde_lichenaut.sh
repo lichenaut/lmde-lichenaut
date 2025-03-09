@@ -245,8 +245,8 @@ source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
 
     # GitHub releases
     install_latest_gh "ThaUnknown/miru" "linux-Miru.*deb" "deb"
-    install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
-    create_desktop_file "NoiseTorch" "noisetorch" "noisetorch" "Audio;Music;Player;AudioVideo;"
+    # install_latest_gh "noisetorch/NoiseTorch" "NoiseTorch_x64.*tgz" "tgz"
+    # create_desktop_file "NoiseTorch" "noisetorch" "noisetorch" "Audio;Music;Player;AudioVideo;"
     install_latest_gh "ebkr/r2modmanPlus" ".*AppImage" "AppImage" "R2ModMan"
     install_latest_gh "VSCodium/vscodium" ".*amd64.deb" "deb"
     codium --install-extension serayuzgur.crates --force
@@ -450,7 +450,7 @@ gpm() {
 
     # Startup apps
     create_autostart_entry "Guake Terminal" "guake" "guake" "guake"
-    create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
+    # create_autostart_entry "NoiseTorch" "noisetorch" "noisetorch" "noisetorch"
     create_autostart_entry "Redshift" "redshift-gtk" "redshift" "redshift-gtk"
     create_autostart_entry "Update Manager" "mintupdate-launcher" "mintupdate" "mintupdate"
     sudo sed -i 's/^X-GNOME-Autostart-enabled=.*/X-GNOME-Autostart-enabled=false/' "$HOME/.config/autostart/mintupdate.desktop"
