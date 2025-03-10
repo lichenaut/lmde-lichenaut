@@ -156,7 +156,7 @@ if [[ "$MODE" == "1" ]]; then
     exit 0
 fi
 
-# Pre-APT installation mode
+# Pre-APT, installation mode
 EMAIL=""
 if [[ "$MODE" == "2" ]]; then
 
@@ -196,6 +196,10 @@ if [[ "$MODE" == "2" ]]; then
     sudo nmcli connection up "$CONNECTION_NAME"
     sudo systemctl restart NetworkManager
 
+    # Java
+    wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+    echo "deb [arch=amd64] https://packages.adoptium.net/artifactory/deb bookworm main" | sudo tee /etc/apt/sources.list.d/adoptium.list
+
     # Node.js
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
 
@@ -229,7 +233,7 @@ if [[ "$MODE" == "2" ]]; then
     # rm /tmp/platform-tools.zip
 
     # APT
-    sudo apt install -y apt-transport-https bleachbit cups dconf-editor deb.torproject.org-keyring git guake hplip htop jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
+    sudo apt install -y apt-transport-https bleachbit cups dconf-editor deb.torproject.org-keyring git guake hplip htop temurin-21-jdk jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
     sudo systemctl enable --now cups
 
     # Ble.sh
