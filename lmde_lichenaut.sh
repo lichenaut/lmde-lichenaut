@@ -428,9 +428,30 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     fi
 
     # Git tweaks
+    git config --global branch.sort -committerdate
+    git config --global column.ui auto
+    git config --global credential.helper /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
+    git config --global diff.algorithm histogram
+    git config --global diff.colorMoved plain
+    git config --global diff.mnemonicPrefix true
+    git config --global diff.renames true
+    git config --global fetch.all true
+    git config --global fetch.prune true
+    git config --global fetch.pruneTags true
+    git config --global help.autocorrect prompt
+    git config --global init.defaultBranch main
+    git config --global pull.rebase true
+    git config --global push.autoSetupRemote true
+    git config --global push.default simple
+    git config --global push.followTags true
+    git config --global rebase.autoSquash true
+    git config --global rebase.autoStash true
+    git config --global rebase.updateRefs true
+    git config --global rerere.autoupdate true
+    git config --global rerere.enabled true
+    git config --global tag.sort version:refname
     git config --global user.email $EMAIL
     git config --global user.name lichenaut
-    git config --global credential.helper /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
     grep -qxF 'gpm() {' ~/.bashrc || echo '
 gpm() {
   read -p "Enter commit message: " message
