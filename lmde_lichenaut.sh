@@ -233,7 +233,7 @@ if [[ "$MODE" == "2" ]]; then
     # rm /tmp/platform-tools.zip
 
     # APT
-    sudo apt install -y apt-transport-https bleachbit cups dconf-editor deb.torproject.org-keyring git guake hplip htop temurin-21-jdk jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
+    sudo apt install -y apt-transport-https bleachbit cups dconf-editor deb.torproject.org-keyring git guake hplip htop temurin-21-jdk jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-django python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher vim vlc
     sudo systemctl enable --now cups
 
     # Ble.sh
