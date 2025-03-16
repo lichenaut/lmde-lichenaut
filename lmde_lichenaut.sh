@@ -326,6 +326,14 @@ lus() {
   ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh 3
 }' >> ~/.bashrc
 
+    # Bash function for Django
+    grep -qxF 'dr() {' ~/.bashrc || echo '
+dr() {
+  . $(pwd)/venv/bin/activate
+  cd backend
+  python3 manage.py runserver
+}' >> ~/.bashrc
+
     # Cinnamon tweaks
     gsettings set org.cinnamon desktop-effects-workspace false
     gsettings set org.cinnamon enabled-applets "['panel1:right:7:calendar@cinnamon.org:29', 'panel1:left:1:grouped-window-list@cinnamon.org:34', 'panel1:left:0:menu@cinnamon.org:37', 'panel1:right:4:network@cinnamon.org:38', 'panel1:right:3:printers@cinnamon.org:39', 'panel1:right:0:removable-drives@cinnamon.org:40', 'panel1:right:1:systray@cinnamon.org:41', 'panel1:right:0:xapp-status@cinnamon.org:42']"
