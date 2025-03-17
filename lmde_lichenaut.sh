@@ -326,12 +326,41 @@ lus() {
   ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh 3
 }' >> ~/.bashrc
 
-    # Bash function for Django
+    # Bash functions for development
+    grep -qxF 'find_project_root() {' ~/.bashrc || echo '
+find_project_root() {
+  original_dir=$(pwd)
+  while [ ! -d ".git" ] && [ "$(pwd)" != "/" ]; do
+    cd ..
+  done
+  if [ "$(pwd)" = "/" ]; then
+    cd "$original_dir"
+    echo "Could not find project root directory."
+    return 1
+  fi
+  if [ ! -d "backend" ] || [ ! -d "frontend" ]; then
+    echo "Could not find required directories in project root."
+    return 1
+  fi
+}' >> ~/.bashrc
     grep -qxF 'dr() {' ~/.bashrc || echo '
 dr() {
-  . $(pwd)/venv/bin/activate
+  find_project_root
+  if [ ! -d "venv" ]; then
+    echo "Could not find required Python virtual environment in project root."
+    return 1
+  fi
+  if [ -z "$VIRTUAL_ENV" ]; then
+    source "$(pwd)/venv/bin/activate"
+  fi
   cd backend
   python3 manage.py runserver
+}' >> ~/.bashrc
+    grep -qxF 'fr() {' ~/.bashrc || echo '
+fr() {
+  find_project_root
+  cd frontend
+  npm run dev
 }' >> ~/.bashrc
 
     # Cinnamon tweaks
