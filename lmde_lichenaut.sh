@@ -317,15 +317,6 @@ source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
     # Purge
     sudo apt purge -y baobab celluloid drawing gnome-calendar gnome-logs gnome-power-manager gnote hexchat hypnotix nano onboard pix rhythmbox seahorse simple-scan thunderbird warpinator webapp-manager xreader
 
-    # Bash function for this script
-    mkdir ~/CodiumProjects
-    git clone https://github.com/lichenaut/lmde-lichenaut ~/CodiumProjects/lmde-lichenaut
-    chmod +x ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh
-    grep -qxF 'lus() {' ~/.bashrc || echo '
-lus() {
-  ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh 3
-}' >> ~/.bashrc
-
     # Bash functions for development
     grep -qxF 'find_project_root() {' ~/.bashrc || echo '
 find_project_root() {
@@ -361,6 +352,15 @@ fr() {
   find_project_root
   cd frontend
   npm run dev
+}' >> ~/.bashrc
+
+    # Bash function for this script
+    mkdir ~/CodiumProjects
+    git clone https://github.com/lichenaut/lmde-lichenaut ~/CodiumProjects/lmde-lichenaut
+    chmod +x ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh
+    grep -qxF 'lus() {' ~/.bashrc || echo '
+lus() {
+  ~/CodiumProjects/lmde-lichenaut/lmde_lichenaut.sh 3
 }' >> ~/.bashrc
 
     # Cinnamon tweaks
