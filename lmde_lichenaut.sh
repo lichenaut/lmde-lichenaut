@@ -492,6 +492,7 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     grep -qxF 'gpm() {' ~/.bashrc || echo '
 gpm() {
   read -p "Enter commit message: " message
+  find_project_root
   git add .
   git commit -m "$message"
   git push
