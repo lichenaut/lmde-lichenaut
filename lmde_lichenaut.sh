@@ -329,19 +329,19 @@ find_project_root() {
     echo "Could not find project root directory."
     return 1
   fi
-  if [ ! -d "backend" ] || [ ! -d "frontend" ]; then
-    echo "Could not find required directories in project root."
-    return 1
-  fi
 }' >> ~/.bashrc
     grep -qxF 'dr() {' ~/.bashrc || echo '
 dr() {
   find_project_root
-  if [ ! -d "venv" ]; then
-    echo "Could not find required Python virtual environment in project root."
+  if [ ! -d "backend" ]; then
+    echo "Could not find the 'backend' directory in project root."
     return 1
   fi
   if [ -z "$VIRTUAL_ENV" ]; then
+    if [ ! -d "venv" ]; then
+        echo "Could not find the 'venv' Python virtual environment directory in project root."
+        return 1
+    fi
     source "$(pwd)/venv/bin/activate"
   fi
   cd backend
@@ -350,8 +350,20 @@ dr() {
     grep -qxF 'fr() {' ~/.bashrc || echo '
 fr() {
   find_project_root
+  if [ ! -d "frontend" ]; then
+    echo "Could not find the 'frontend' directory in project root."
+    return 1
+  fi
   cd frontend
   npm run dev
+}' >> ~/.bashrc
+    grep -qxF 'gpm() {' ~/.bashrc || echo '
+gpm() {
+  read -p "Enter commit message: " message
+  find_project_root
+  git add .
+  git commit -m "$message"
+  git push
 }' >> ~/.bashrc
 
     # Bash function for this script
@@ -489,14 +501,6 @@ x-scheme-handler/http=io.gitlab.librewolf-community.desktop;firefox.desktop" > ~
     git config --global tag.sort version:refname
     git config --global user.email $EMAIL
     git config --global user.name lichenaut
-    grep -qxF 'gpm() {' ~/.bashrc || echo '
-gpm() {
-  read -p "Enter commit message: " message
-  find_project_root
-  git add .
-  git commit -m "$message"
-  git push
-}' >> ~/.bashrc
 
     # GRUB tweaks
     sudo sed -i 's/^#GRUB_GFXMODE=.*/GRUB_GFXMODE=1920x1080/' "/etc/default/grub"
