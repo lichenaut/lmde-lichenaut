@@ -272,20 +272,20 @@ source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
     touch ~/.config/VSCodium/User/settings.json
     echo "{
   \"workbench.sideBar.location\": \"right\",
-  \"workbench.colorTheme\": \"One Dark Pro\", 
-  \"editor.formatOnSave\": true, 
-  \"editor.defaultFormatter\": \"esbenp.prettier-vscode\", 
-  \"[javascript]\": { 
-    \"editor.defaultFormatter\": \"esbenp.prettier-vscode\" 
-  }
+  \"workbench.colorTheme\": \"One Dark Pro\",
+  \"editor.formatOnSave\": true,
+  \"editor.defaultFormatter\": \"esbenp.prettier-vscode\",
+  \"[javascript]\": {
+    \"editor.defaultFormatter\": \"esbenp.prettier-vscode\"
+  },
+  \"workbench.startupEditor\": \"none\",
+  \"security.workspace.trust.untrustedFiles\": \"open\",
+  \"explorer.confirmDelete\": false,
+  \"typescript.updateImportsOnFileMove.enabled\": \"always\",
+  \"javascript.updateImportsOnFileMove.enabled\": \"always\",
+  \"explorer.confirmDragAndDrop\": false,
+  \"editor.wordWrap\": \"on\"
 }" > ~/.config/VSCodium/User/settings.json
-    touch ~/.config/VSCodium/User/keybindings.json
-    echo "[
-  {
-    \"key\": \"ctrl+j\",
-    \"command\": \"-workbench.action.togglePanel\"
-  }
-]" > ~/.config/VSCodium/User/keybindings.json
 
     # Libsecret
     sudo apt-get install libsecret-1-0 libsecret-1-dev
