@@ -284,7 +284,13 @@ source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
   \"typescript.updateImportsOnFileMove.enabled\": \"always\",
   \"javascript.updateImportsOnFileMove.enabled\": \"always\",
   \"explorer.confirmDragAndDrop\": false,
-  \"editor.wordWrap\": \"on\"
+  \"editor.wordWrap\": \"on\",
+  \"github.copilot.enable\": {
+    \"*\": true,
+    \"plaintext\": true,
+    \"markdown\": true,
+    \"scminput\": true
+  }
 }" > ~/.config/VSCodium/User/settings.json
 
     # Libsecret
