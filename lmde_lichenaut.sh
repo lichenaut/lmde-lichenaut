@@ -204,12 +204,12 @@ if [[ "$MODE" == "2" ]]; then
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
 
     # OpenRazer
-    echo 'deb http://download.opensuse.org/repositories/hardware:/razer/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/hardware:razer.list
+    echo 'deb https://download.opensuse.org/repositories/hardware:/razer/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/hardware:razer.list
     curl -SL https://download.opensuse.org/repositories/hardware:razer/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/hardware_razer.gpg > /dev/null
 
     # Spotify
     curl -S https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
-    echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+    echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 
     # Tor
     echo "deb     [signed-by=/usr/share/keyrings/deb.torproject.org-keyring.gpg] https://deb.torproject.org/torproject.org bookworm main
@@ -233,7 +233,7 @@ if [[ "$MODE" == "2" ]]; then
     # rm /tmp/platform-tools.zip
 
     # APT
-    sudo apt install -y apt-transport-https bleachbit cups dconf-editor deb.torproject.org-keyring git guake hplip htop temurin-21-jdk jq keepassxc krita kdenlive nodejs npm nvidia-driver podman preload python3-django python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher tree vim vlc
+    sudo apt install -y apt-transport-https bleachbit caddy cups dconf-editor deb.torproject.org-keyring git guake hplip htop temurin-21-jdk jq keepassxc krita kdenlive nodejs npm nvidia-driver podman podman-compose preload python3-django python3-pip python3.11-venv razergenie openrazer-meta sqlitebrowser spotify-client tlp tlp-rdw tor torbrowser-launcher tree vim vlc
     sudo systemctl enable --now cups
 
     # Ble.sh
