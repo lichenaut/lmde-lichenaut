@@ -318,7 +318,6 @@ source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
     git clone https://github.com/abba23/spotify-adblock.git ~/spotify-adblock
     make -C ~/spotify-adblock
     sudo make -C ~/spotify-adblock install
-    create_desktop_file "Spotify" "env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U" "spotify-client" "Audio;Music;Player;AudioVideo;"
 
     # Purge
     sudo apt purge -y baobab celluloid drawing gnome-calendar gnome-logs gnome-power-manager gnote hexchat hypnotix nano onboard pix rhythmbox seahorse simple-scan thunderbird warpinator webapp-manager xreader
@@ -554,6 +553,9 @@ update_pref_js "$HOME/.local/share/torbrowser/tbb/x86_64/tor-browser/Browser/Tor
 if [[ "$MODE" == "2" ]]; then
     neofetch
 fi
+
+# Spotify patching
+create_desktop_file "Spotify" "env LD_PRELOAD=/usr/local/lib/spotify-adblock.so spotify %U" "spotify-client" "Audio;Music;Player;AudioVideo;"
 
 # Reboot question
 read -t 10 -p "Reboot now? (y/N): " REBOOT_CHOICE && echo
